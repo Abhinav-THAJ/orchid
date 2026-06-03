@@ -3,8 +3,8 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#111] text-[#FAF7F4] pt-32 pb-12 px-6 md:px-12 border-t border-white/10">
-      <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
+    <footer className="bg-[#111] text-[#FAF7F4] pt-16 md:pt-32 pb-12 px-6 md:px-12 border-t border-white/10">
+      <div className="max-w-[1600px] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-16 mb-16 md:mb-24">
         <div className="col-span-1 md:col-span-2">
           <Link href="/" className="block relative w-40 h-40 mb-10 group">
             <Image src="/logo.png" alt="Orchid Designs" fill className="object-contain object-left" />

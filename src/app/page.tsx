@@ -86,14 +86,14 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/20" />
         
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-4">
-          <div ref={heroTextRef} className="overflow-hidden mb-4">
-            <h1 className="font-heading text-6xl md:text-8xl lg:text-9xl text-white font-medium tracking-tight">
+        <div ref={heroTextRef} className="overflow-hidden mb-4 px-4">
+            <h1 className="font-heading text-4xl sm:text-6xl md:text-8xl lg:text-9xl text-white font-medium tracking-tight">
               {"ORCHID DESIGNS".split("").map((char, i) => (
                 <span key={i} className="char inline-block">{char === " " ? "\u00A0" : char}</span>
               ))}
             </h1>
           </div>
-          <p className="text-white/90 text-lg md:text-xl font-sans font-light tracking-widest uppercase max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700 fill-mode-both">
+          <p className="text-white/90 text-sm md:text-xl font-sans font-light tracking-widest uppercase max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700 fill-mode-both px-4">
             Elegance Woven Into Every Thread
           </p>
           <div className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-1000 fill-mode-both">
@@ -225,7 +225,7 @@ export default function Home() {
       {/* Brand Story Section */}
       <section ref={storyRef} className="py-24 px-6 md:px-12 max-w-[1400px] mx-auto">
         <div className="flex flex-col md:flex-row items-center gap-16 md:gap-24">
-          <div className="w-full md:w-1/2 h-[600px] relative story-reveal overflow-hidden">
+          <div className="w-full md:w-1/2 h-[350px] md:h-[600px] relative story-reveal overflow-hidden">
             <Image
               src={brandStoryImage}
               alt="Brand Craftsmanship"
@@ -260,7 +260,7 @@ export default function Home() {
       {/* Featured Collections */}
       <section className="py-20">
         {featuredCollections.map((collection, index) => (
-          <div key={index} className="group relative h-[80vh] w-full overflow-hidden mb-4 last:mb-0">
+          <div key={index} className="group relative h-[50vh] md:h-[80vh] w-full overflow-hidden mb-4 last:mb-0">
             <Image
               src={collection.image}
               alt={collection.title}

@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, SlidersHorizontal, X } from "lucide-react";
 
 const CATEGORY_GROUPS = [
   {
@@ -93,6 +93,7 @@ function AccordionGroup({ title, items, isOpenDefault = true }: { title: string,
 export default function CategoryPage() {
   const params = useParams();
   const categoryStr = params.category as string || "";
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   
   const title = categoryStr 
     ? categoryStr.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') 
@@ -127,59 +128,77 @@ export default function CategoryPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      
-      {/* Spacer for fixed navbar */}
-      <div className="h-32"></div>
 
-      <div className="container mx-auto px-6 md:px-12 max-w-[1800px] flex flex-col md:flex-row gap-12 pb-32">
-        
-        {/* Sidebar Filter */}
-        <aside className="w-full md:w-64 shrink-0">
-          <div className="sticky top-32 max-h-[calc(100vh-160px)] overflow-y-auto overscroll-contain pb-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <AccordionGroup title="WOMEN'S WEAR" items={CATEGORY_GROUPS[1].items} isOpenDefault={true} />
-            <AccordionGroup title="KIDS WEAR" items={CATEGORY_GROUPS[2].items} isOpenDefault={true} />
-            <AccordionGroup title="COLLECTIONS" items={CATEGORY_GROUPS[0].items} isOpenDefault={false} />
+      <div className="h-24 md:h-32"></div>
+
+      <div className="container mx-auto px-4 md:px-12 max-w-[1800px] pb-32">
+
+        {/* Mobile Filter Bar */}
+        <div className="flex items-center justify-between mb-6 md:hidden border-b border-black/10 pb-4">
+          <h1 className="font-heading text-2xl font-medium">{title}</h1>
+          <button
+            onClick={() => setMobileFilterOpen(true)}
+            className="flex items-center gap-2 text-xs tracking-widest uppercase font-semibold border border-black/20 px-4 py-2"
+          >
+            <SlidersHorizontal className="w-4 h-4" /> Filter
+          </button>
+        </div>
+
+        {/* Mobile Filter Drawer */}
+        {mobileFilterOpen && (
+          <div className="fixed inset-0 z-[70] flex">
+            <div className="flex-1 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
+            <div className="w-[300px] bg-white h-full overflow-y-auto p-6 shadow-2xl animate-in slide-in-from-right duration-300">
+              <div className="flex items-center justify-between mb-8">
+                <span className="font-heading text-xl">Filters</span>
+                <button onClick={() => setMobileFilterOpen(false)}><X className="w-6 h-6 text-foreground/60" /></button>
+              </div>
+              <AccordionGroup title="WOMEN'S WEAR" items={CATEGORY_GROUPS[1].items} isOpenDefault={true} />
+              <AccordionGroup title="KIDS WEAR" items={CATEGORY_GROUPS[2].items} isOpenDefault={true} />
+              <AccordionGroup title="COLLECTIONS" items={CATEGORY_GROUPS[0].items} isOpenDefault={false} />
+            </div>
           </div>
-        </aside>
+        )}
 
-        {/* Product Grid */}
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-8 pb-4 border-b border-black/5">
-            <h1 className="font-heading text-3xl font-medium">{title}</h1>
-            <span className="text-xs tracking-widest uppercase text-foreground/50">{displayProducts.length} Results</span>
-          </div>
+        <div className="flex gap-12">
+          {/* Desktop Sidebar */}
+          <aside className="hidden md:block w-64 shrink-0">
+            <div className="sticky top-32 max-h-[calc(100vh-160px)] overflow-y-auto overscroll-contain pb-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <AccordionGroup title="WOMEN'S WEAR" items={CATEGORY_GROUPS[1].items} isOpenDefault={true} />
+              <AccordionGroup title="KIDS WEAR" items={CATEGORY_GROUPS[2].items} isOpenDefault={true} />
+              <AccordionGroup title="COLLECTIONS" items={CATEGORY_GROUPS[0].items} isOpenDefault={false} />
+            </div>
+          </aside>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
-            {displayProducts.map((prod, i) => (
-              <Link href={`/product/${prod.name.toLowerCase().replace(/\s+/g, '-')}`} key={i} className="group cursor-pointer block">
-                <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-4">
-                  <Image
-                    src={prod.img}
-                    alt={prod.name}
-                    fill
-                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                  />
-                  {/* Quick Add Hover */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
-                    <button className="w-full bg-white/90 backdrop-blur-sm text-black py-3 text-xs tracking-widest uppercase font-medium hover:bg-primary hover:text-white transition-colors shadow-lg">
-                      Add to Bag
-                    </button>
+          {/* Product Grid */}
+          <div className="flex-1">
+            <div className="hidden md:flex items-center justify-between mb-8 pb-4 border-b border-black/5">
+              <h1 className="font-heading text-3xl font-medium">{title}</h1>
+              <span className="text-xs tracking-widest uppercase text-foreground/50">{displayProducts.length} Results</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+              {displayProducts.map((prod, i) => (
+                <Link href={`/product/${prod.name.toLowerCase().replace(/\s+/g, '-')}`} key={i} className="group cursor-pointer block">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-3 md:mb-4">
+                    <Image src={prod.img} alt={prod.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
+                      <button className="w-full bg-white/90 backdrop-blur-sm text-black py-2 md:py-3 text-[10px] md:text-xs tracking-widest uppercase font-medium hover:bg-primary hover:text-white transition-colors shadow-lg">Add to Bag</button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-sans text-xs md:text-sm tracking-wide text-foreground uppercase mb-1">{prod.name}</h4>
-                    <p className="font-sans text-foreground/50 text-xs">{prod.tag}</p>
+                  <div className="flex justify-between items-start gap-1">
+                    <div className="min-w-0">
+                      <h4 className="font-sans text-[11px] md:text-sm tracking-wide text-foreground uppercase mb-1 truncate">{prod.name}</h4>
+                      <p className="font-sans text-foreground/50 text-[10px] md:text-xs">{prod.tag}</p>
+                    </div>
+                    <p className="font-sans text-foreground/80 text-xs md:text-sm font-medium shrink-0">₹{prod.price}</p>
                   </div>
-                  <p className="font-sans text-foreground/80 text-sm font-medium">₹{prod.price}</p>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-        
       </div>
-      
     </main>
   );
 }

@@ -51,11 +51,11 @@ export default function ProductDetailPage() {
       <div className="container mx-auto px-6 md:px-12 py-12 max-w-[1600px] flex flex-col lg:flex-row gap-16 lg:gap-24 pb-32">
         
         {/* Left: Image Gallery */}
-        <div className="w-full lg:w-[55%] flex gap-4 lg:gap-6 h-[60vh] md:h-[80vh] min-h-[500px]">
-          {/* Thumbnails */}
-          <div className="w-20 md:w-28 shrink-0 flex flex-col gap-4 overflow-y-auto overscroll-contain pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="w-full lg:w-[55%] flex flex-col-reverse sm:flex-row gap-3 lg:gap-6 h-[50vh] sm:h-[60vh] md:h-[80vh] min-h-[350px]">
+          {/* Thumbnails — hidden on mobile, shown sm+ */}
+          <div className="hidden sm:flex w-16 md:w-28 shrink-0 flex-col gap-3 overflow-y-auto overscroll-contain pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {images.map((img, idx) => (
-              <button 
+              <button
                 key={idx}
                 onClick={() => setMainImg(img)}
                 className={`relative aspect-[3/4] w-full bg-secondary overflow-hidden transition-all ${
