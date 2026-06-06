@@ -45,6 +45,93 @@ const INSTAGRAM_POSTS = [
   "/images/collection_premium_1780477860938.png",
 ];
 
+const TESTIMONIALS = [
+  {
+    quote: "Orchid Designs created the most magical ensemble for my wedding. The craftsmanship and attention to detail are truly world-class, making me feel like royalty.",
+    author: "Ananya S., Kerala",
+    rating: 5,
+  },
+  {
+    quote: "The quality of the silk and the intricacy of the embroidery exceeded all my expectations. Every piece tells a story of heritage and luxury.",
+    author: "Priya R., Mumbai",
+    rating: 5,
+  },
+  {
+    quote: "Wearing their traditional collection made me feel connected to my roots while looking effortlessly modern. Absolutely stunning work.",
+    author: "Meera K., Bangalore",
+    rating: 5,
+  },
+  {
+    quote: "From the personalized service to the final fitting, the entire experience was impeccable. Orchid Designs is my go-to for luxury ethnic wear.",
+    author: "Divya M., Delhi",
+    rating: 5,
+  }
+];
+
+function TestimonialSlider() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((i) => (i + 1) % TESTIMONIALS.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <section className="py-24 md:py-32 px-6 bg-[#FAFAFA] relative overflow-hidden">
+      {/* Decorative quotes background */}
+      <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-[200px] md:text-[300px] leading-none font-heading text-[#0A0A0A]/[0.03] pointer-events-none select-none italic font-serif">
+        "
+      </div>
+
+      <div className="max-w-5xl mx-auto text-center relative z-10">
+        <span className="text-[10px] tracking-[0.3em] uppercase text-[#B8973E] font-semibold mb-12 block">Client Stories</span>
+        
+        <div className="relative min-h-[350px] md:min-h-[220px]">
+          {TESTIMONIALS.map((testimonial, i) => {
+            const isActive = i === currentIndex;
+            return (
+              <div
+                key={i}
+                className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  isActive ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" : "opacity-0 translate-y-4 scale-95 pointer-events-none"
+                }`}
+              >
+                <div className="flex justify-center mb-6 md:mb-8 gap-1">
+                  {[...Array(testimonial.rating)].map((_, s) => (
+                    <Star key={s} className="w-4 h-4 md:w-5 md:h-5 text-[#B8973E] fill-[#B8973E]" />
+                  ))}
+                </div>
+                <h2 className="font-heading text-2xl md:text-4xl lg:text-4xl text-[#0A0A0A] font-normal leading-relaxed md:leading-relaxed mb-8 md:mb-10 italic max-w-4xl mx-auto px-4">
+                  "{testimonial.quote}"
+                </h2>
+                <p className="font-sans text-[10px] md:text-xs tracking-[0.2em] uppercase text-[#0A0A0A]/50 font-medium">
+                  — {testimonial.author}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Navigation Dots */}
+        <div className="flex justify-center items-center gap-3 mt-8 md:mt-12">
+          {TESTIMONIALS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentIndex(i)}
+              className={`transition-all duration-500 rounded-full ${
+                i === currentIndex ? "w-8 h-1 bg-[#D4AF6A]" : "w-1.5 h-1.5 bg-black/15 hover:bg-[#D4AF6A]/50"
+              }`}
+              aria-label={`Go to testimonial ${i + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
   return (
     <div className="flex items-center gap-1.5">
@@ -446,18 +533,7 @@ export default function Home() {
       </section>
 
       {/* ── Testimonials ── */}
-      <section className="py-32 px-6 bg-[#FAFAFA]">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="flex justify-center mb-6">
-            {[1,2,3,4,5].map(s => <Star key={s} className="w-5 h-5 text-[#B8973E] fill-[#B8973E]" />)}
-          </div>
-          <span className="text-[10px] tracking-[0.3em] uppercase text-[#B8973E] font-semibold mb-8 block">Client Stories</span>
-          <h2 className="font-heading text-2xl md:text-4xl text-[#0A0A0A] font-normal leading-relaxed mb-8 italic">
-            "Orchid Designs created the most magical ensemble for my wedding. The craftsmanship and attention to detail are truly world-class, making me feel like royalty."
-          </h2>
-          <p className="font-sans text-sm tracking-[0.2em] uppercase text-[#0A0A0A]/40">— Ananya S., Kerala</p>
-        </div>
-      </section>
+      <TestimonialSlider />
 
       {/* ── Newsletter ── */}
       <section className="py-24 px-6 bg-[#0A0A0A]">
