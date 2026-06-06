@@ -141,7 +141,7 @@ export default function Navbar() {
               alt="Orchid Designs"
               width={200}
               height={200}
-              className="h-24 w-auto object-contain transition-all duration-300 group-hover:opacity-80"
+              className="h-[88px] w-auto object-contain transition-all duration-300 group-hover:opacity-80"
               priority
             />
           </Link>
@@ -358,7 +358,7 @@ export default function Navbar() {
         <div className="fixed inset-0 z-[60] bg-[#0A0A0A] flex flex-col pt-0 overflow-y-auto">
           <div className="flex items-center justify-between px-6 h-28 border-b border-white/10">
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-              <Image src="/logo-circle.png" alt="Orchid Designs" width={200} height={200} className="h-20 w-auto object-contain" />
+              <Image src="/logo-circle.png" alt="Orchid Designs" width={200} height={200} className="h-[72px] w-auto object-contain" />
             </Link>
             <button
               className="text-white/70 hover:text-white p-2"

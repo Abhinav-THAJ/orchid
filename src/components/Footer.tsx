@@ -28,7 +28,7 @@ export default function Footer() {
                 alt="Orchid Designs"
                 width={200}
                 height={200}
-                className="h-36 w-auto object-contain object-left opacity-90 group-hover:opacity-100 transition-opacity"
+                className="h-24 w-auto object-contain object-left opacity-90 group-hover:opacity-100 transition-opacity"
                 style={{ filter: "brightness(1.1)" }}
               />
             </Link>
