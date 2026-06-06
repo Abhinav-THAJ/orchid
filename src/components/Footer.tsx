@@ -24,10 +24,10 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="block mb-8 group">
               <Image
-                src="/logo-new.png"
+                src="/logo-circle.png"
                 alt="Orchid Designs"
-                width={320}
-                height={160}
+                width={200}
+                height={200}
                 className="h-36 w-auto object-contain object-left opacity-90 group-hover:opacity-100 transition-opacity"
                 style={{ filter: "brightness(1.1)" }}
               />

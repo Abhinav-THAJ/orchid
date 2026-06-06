@@ -137,10 +137,10 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center z-50 h-28 group shrink-0">
             <Image
-              src="/logo-new.png"
+              src="/logo-circle.png"
               alt="Orchid Designs"
-              width={260}
-              height={130}
+              width={200}
+              height={200}
               className="h-24 w-auto object-contain transition-all duration-300 group-hover:opacity-80"
               priority
             />
@@ -358,7 +358,7 @@ export default function Navbar() {
         <div className="fixed inset-0 z-[60] bg-[#0A0A0A] flex flex-col pt-0 overflow-y-auto">
           <div className="flex items-center justify-between px-6 h-28 border-b border-white/10">
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-              <Image src="/logo-new.png" alt="Orchid Designs" width={200} height={100} className="h-20 w-auto object-contain" />
+              <Image src="/logo-circle.png" alt="Orchid Designs" width={200} height={200} className="h-20 w-auto object-contain" />
             </Link>
             <button
               className="text-white/70 hover:text-white p-2"
