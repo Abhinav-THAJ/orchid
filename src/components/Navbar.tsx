@@ -133,15 +133,15 @@ export default function Navbar() {
           </div>
         )}
 
-        <div className="container mx-auto px-6 md:px-12 flex items-center justify-between h-20">
+        <div className="container mx-auto px-6 md:px-12 flex items-center justify-between h-28">
           {/* Logo */}
-          <Link href="/" className="flex items-center z-50 h-20 group shrink-0">
+          <Link href="/" className="flex items-center z-50 h-28 group shrink-0">
             <Image
               src="/logo-new.png"
               alt="Orchid Designs"
-              width={140}
-              height={70}
-              className="h-16 w-auto object-contain transition-all duration-300 group-hover:opacity-80"
+              width={260}
+              height={130}
+              className="h-24 w-auto object-contain transition-all duration-300 group-hover:opacity-80"
               priority
             />
           </Link>
@@ -150,13 +150,13 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-10 h-full">
             <Link
               href="/"
-              className={`text-[11px] font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-[#D4AF6A] after:transition-all after:duration-300 hover:after:w-full ${textColor}`}
+              className={`text-sm font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-[#D4AF6A] after:transition-all after:duration-300 hover:after:w-full ${textColor}`}
             >
               Home
             </Link>
             
             <div
-              className={`h-full flex items-center cursor-pointer text-[11px] font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] relative group ${textColor}`}
+              className={`h-full flex items-center cursor-pointer text-sm font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] relative group ${textColor}`}
               onMouseEnter={() => setIsMegaMenuOpen(true)}
             >
               <span className="flex items-center gap-1.5">
@@ -167,19 +167,19 @@ export default function Navbar() {
 
             <Link
               href="/services"
-              className={`text-[11px] font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] ${textColor}`}
+              className={`text-sm font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] ${textColor}`}
             >
               Services
             </Link>
             <Link
               href="/about"
-              className={`text-[11px] font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] ${textColor}`}
+              className={`text-sm font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] ${textColor}`}
             >
               About
             </Link>
             <Link
               href="/contact"
-              className={`text-[11px] font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] ${textColor}`}
+              className={`text-sm font-semibold tracking-[0.2em] uppercase transition-all duration-200 hover:text-[#D4AF6A] ${textColor}`}
             >
               Contact
             </Link>
@@ -189,7 +189,7 @@ export default function Navbar() {
           <div className={`flex items-center gap-5 z-50 ${textColor}`}>
             {/* Instagram */}
             <a
-              href="https://www.instagram.com/orchid.designs_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+              href="https://www.instagram.com/_orchid_designs_by_kunjus?utm_source=qr&igsh=MWxjZDZpZXJpNzNvbg=="
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex hover:text-[#D4AF6A] transition-colors duration-200"
@@ -356,9 +356,9 @@ export default function Navbar() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-[60] bg-[#0A0A0A] flex flex-col pt-0 overflow-y-auto">
-          <div className="flex items-center justify-between px-6 h-20 border-b border-white/10">
+          <div className="flex items-center justify-between px-6 h-28 border-b border-white/10">
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-              <Image src="/logo-new.png" alt="Orchid Designs" width={120} height={60} className="h-14 w-auto object-contain" />
+              <Image src="/logo-new.png" alt="Orchid Designs" width={200} height={100} className="h-20 w-auto object-contain" />
             </Link>
             <button
               className="text-white/70 hover:text-white p-2"
@@ -403,7 +403,7 @@ export default function Navbar() {
             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="font-heading text-2xl text-white border-b border-white/10 py-5">Contact</Link>
 
             <div className="flex items-center gap-6 mt-8">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-[#D4AF6A] transition-colors">
+              <a href="https://www.instagram.com/_orchid_designs_by_kunjus?utm_source=qr&igsh=MWxjZDZpZXJpNzNvbg==" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-[#D4AF6A] transition-colors">
                 <InstagramIcon className="w-6 h-6" />
               </a>
               <Link href="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="text-white/60 hover:text-[#D4AF6A] transition-colors">

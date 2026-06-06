@@ -26,9 +26,9 @@ export default function Footer() {
               <Image
                 src="/logo-new.png"
                 alt="Orchid Designs"
-                width={160}
-                height={80}
-                className="h-20 w-auto object-contain object-left opacity-90 group-hover:opacity-100 transition-opacity"
+                width={320}
+                height={160}
+                className="h-36 w-auto object-contain object-left opacity-90 group-hover:opacity-100 transition-opacity"
                 style={{ filter: "brightness(1.1)" }}
               />
             </Link>
@@ -38,7 +38,7 @@ export default function Footer() {
             {/* Social Icons */}
             <div className="flex items-center gap-4">
               <a
-                href="https://www.instagram.com/orchid.designs_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                href="https://www.instagram.com/_orchid_designs_by_kunjus?utm_source=qr&igsh=MWxjZDZpZXJpNzNvbg=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/50 hover:text-[#D4AF6A] hover:border-[#D4AF6A]/40 transition-all duration-300"

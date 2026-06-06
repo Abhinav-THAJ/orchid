@@ -98,6 +98,8 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const { addItem } = useCart();
 
+  const isKids = slug.includes("baby") || slug.includes("girls") || slug.includes("boys") || slug.includes("kids");
+
   const product = PRODUCT_DB[slug] || {
     name: slug.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
     price: 4999, originalPrice: 9999,
@@ -116,8 +118,10 @@ export default function ProductDetailPage() {
       "/images/category_womens_kurta_sets_1780478021874.png",
     ],
     tag: "Luxury · Handcrafted",
-    sizes: ["XS", "S", "M", "L", "XL"],
+    sizes: isKids ? ["2 Years", "4 Years", "6 Years", "8 Years", "10 Years"] : ["XS", "S", "M", "L", "XL"],
   };
+
+  const stockCount = 2; // For demonstration, showing low stock across all products
 
   const [mainImgIndex, setMainImgIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
@@ -127,6 +131,26 @@ export default function ProductDetailPage() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const mainImgRef = useRef<HTMLDivElement>(null);
+
+  // Reviews state
+  const [reviewsList, setReviewsList] = useState([
+    { name: "Ananya S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning piece! The quality and craftsmanship are beyond my expectations. Definitely buying again." },
+    { name: "Priya M.", rating: 4, date: "September 28, 2025", comment: "Beautiful design and comfortable fabric. Got many compliments at the wedding." },
+    { name: "Meera K.", rating: 5, date: "August 15, 2025", comment: "Loved the detailing. Very premium feel." }
+  ]);
+  const [reviewName, setReviewName] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewName || !reviewComment) return;
+    setReviewsList([{ name: reviewName, rating: reviewRating, date: "Just now", comment: reviewComment }, ...reviewsList]);
+    setReviewName("");
+    setReviewComment("");
+    setReviewRating(5);
+  };
 
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 
@@ -300,10 +324,15 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Price */}
-            <div className="flex items-baseline gap-4 mb-8 pb-8 border-b border-black/6">
-              <span className="font-heading text-3xl text-[#0A0A0A] font-medium">₹{product.price.toLocaleString()}</span>
-              <span className="text-lg text-foreground/30 line-through">₹{product.originalPrice.toLocaleString()}</span>
-              <span className="text-sm font-bold text-[#B8973E] bg-[#F0E4C0] px-2.5 py-1">{discount}% OFF</span>
+            <div className="flex flex-col mb-8 pb-8 border-b border-black/6">
+              <div className="flex items-baseline gap-4 mb-2">
+                <span className="font-heading text-3xl text-[#0A0A0A] font-medium">₹{product.price.toLocaleString()}</span>
+                <span className="text-lg text-foreground/30 line-through">₹{product.originalPrice.toLocaleString()}</span>
+                <span className="text-sm font-bold text-[#B8973E] bg-[#F0E4C0] px-2.5 py-1">{discount}% OFF</span>
+              </div>
+              <p className="text-[11px] text-[#D84545] font-medium tracking-wide mt-1">
+                Only {stockCount} left in stock
+              </p>
             </div>
 
             {/* Saree Details OR Size Selector */}
@@ -329,7 +358,7 @@ export default function ProductDetailPage() {
                   <button className="text-[11px] text-foreground/40 underline hover:text-foreground transition-colors">Size Guide</button>
                 </div>
                 <div className="flex gap-2.5 flex-wrap">
-                  {(product.sizes || ["XS","S","M","L","XL"]).map(size => (
+                  {(product.sizes || (isKids ? ["2 Years", "4 Years", "6 Years", "8 Years", "10 Years"] : ["XS","S","M","L","XL"])).map(size => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
@@ -446,6 +475,100 @@ export default function ProductDetailPage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Reviews Section ── */}
+      <div className="container mx-auto px-6 md:px-12 max-w-[1000px] pb-32">
+        <h2 className="font-heading text-3xl text-[#0A0A0A] mb-12 text-center">Customer Reviews</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+          {/* List of Reviews */}
+          <div>
+            <div className="flex items-center gap-4 mb-8 pb-8 border-b border-black/6">
+              <div className="text-5xl font-heading text-[#0A0A0A]">{product.rating}</div>
+              <div>
+                <div className="flex mb-1">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <Star key={s} className={`w-4 h-4 ${s <= Math.round(product.rating) ? "text-[#B8973E] fill-[#B8973E]" : "text-gray-200 fill-gray-200"}`} />
+                  ))}
+                </div>
+                <div className="text-xs text-foreground/50 tracking-wide">Based on {product.reviews + reviewsList.length - 3} reviews</div>
+              </div>
+            </div>
+
+            <div className="space-y-8 max-h-[500px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-black/10 [&::-webkit-scrollbar-track]:bg-transparent">
+              {reviewsList.map((r, i) => (
+                <div key={i} className="border-b border-black/5 pb-6 last:border-0">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold text-sm text-[#0A0A0A]">{r.name}</span>
+                    <span className="text-[10px] text-foreground/40">{r.date}</span>
+                  </div>
+                  <div className="flex mb-3">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star key={s} className={`w-3 h-3 ${s <= r.rating ? "text-[#B8973E] fill-[#B8973E]" : "text-gray-200 fill-gray-200"}`} />
+                    ))}
+                  </div>
+                  <p className="text-sm text-foreground/60 leading-relaxed">{r.comment}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Write a Review Form */}
+          <div className="bg-[#F5F5F5] p-8">
+            <h3 className="font-heading text-xl text-[#0A0A0A] mb-6">Write a Review</h3>
+            <form onSubmit={handleReviewSubmit} className="space-y-5">
+              <div>
+                <label className="block text-[10px] tracking-[0.2em] uppercase text-foreground/60 mb-2">Rating</label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                      type="button"
+                      key={star}
+                      className="focus:outline-none"
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      onClick={() => setReviewRating(star)}
+                    >
+                      <Star className={`w-6 h-6 transition-colors ${star <= (hoverRating || reviewRating) ? "text-[#B8973E] fill-[#B8973E]" : "text-gray-300 fill-gray-300"}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] tracking-[0.2em] uppercase text-foreground/60 mb-2">Name</label>
+                <input
+                  type="text"
+                  required
+                  value={reviewName}
+                  onChange={(e) => setReviewName(e.target.value)}
+                  className="w-full border border-black/10 bg-white px-4 py-3 text-sm focus:outline-none focus:border-[#B8973E] transition-colors"
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] tracking-[0.2em] uppercase text-foreground/60 mb-2">Review</label>
+                <textarea
+                  required
+                  rows={4}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  className="w-full border border-black/10 bg-white px-4 py-3 text-sm focus:outline-none focus:border-[#B8973E] transition-colors resize-none"
+                  placeholder="Share your thoughts about this product..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-[#0A0A0A] text-white py-4 text-[11px] tracking-[0.2em] uppercase font-bold hover:bg-[#B8973E] transition-colors duration-300"
+              >
+                Submit Review
+              </button>
+            </form>
           </div>
         </div>
       </div>

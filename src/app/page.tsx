@@ -23,17 +23,17 @@ function InstagramIcon({ className = "w-5 h-5" }: { className?: string }) {
 gsap.registerPlugin(ScrollTrigger);
 
 const BEST_SELLERS = [
-  { img: "/images/category_womens_sarees_1780477985126.png", name: "Regal Silk Saree", price: "₹4,999", originalPrice: "₹9,999", discount: "50% OFF", rating: 4.8, reviews: 124, tag: "Silk · Bestseller", href: "/product/regal-silk-saree" },
-  { img: "/images/category_womens_kurtis_1780478001731.png", name: "Embroidered Kurti", price: "₹1,499", originalPrice: "₹2,999", discount: "50% OFF", rating: 4.6, reviews: 89, tag: "Cotton · Top Rated", href: "/product/embroidered-kurti" },
-  { img: "/images/category_womens_kurta_sets_1780478021874.png", name: "Royal Kurta Set", price: "₹2,499", originalPrice: "₹4,999", discount: "50% OFF", rating: 4.9, reviews: 203, tag: "Designer · Premium", href: "/product/royal-kurta-set" },
-  { img: "/images/category_womens_tops_1780478037830.png", name: "Chic Fusion Top", price: "₹999", originalPrice: "₹1,999", discount: "50% OFF", rating: 4.5, reviews: 67, tag: "Modern · Casual", href: "/product/chic-fusion-top" },
+  { img: "/images/category_womens_sarees_1780477985126.png", name: "Regal Silk Saree", price: "₹4,999", originalPrice: "₹9,999", discount: "50% OFF", rating: 4.8, reviews: 124, tag: "Silk · Bestseller", href: "/product/regal-silk-saree", stockCount: 2 },
+  { img: "/images/category_womens_kurtis_1780478001731.png", name: "Embroidered Kurti", price: "₹1,499", originalPrice: "₹2,999", discount: "50% OFF", rating: 4.6, reviews: 89, tag: "Cotton · Top Rated", href: "/product/embroidered-kurti", stockCount: 5 },
+  { img: "/images/category_womens_kurta_sets_1780478021874.png", name: "Royal Kurta Set", price: "₹2,499", originalPrice: "₹4,999", discount: "50% OFF", rating: 4.9, reviews: 203, tag: "Designer · Premium", href: "/product/royal-kurta-set", stockCount: 1 },
+  { img: "/images/category_womens_tops_1780478037830.png", name: "Chic Fusion Top", price: "₹999", originalPrice: "₹1,999", discount: "50% OFF", rating: 4.5, reviews: 67, tag: "Modern · Casual", href: "/product/chic-fusion-top", stockCount: 4 },
 ];
 
 const NEW_ARRIVALS = [
-  { img: "/images/category_kids_baby_wear_1780478061079.png", name: "Luxury Baby Ensemble", price: "₹1,299", originalPrice: "₹2,499", discount: "48% OFF", rating: 4.7, reviews: 45, tag: "Soft Fabric", href: "/product/luxury-baby-ensemble" },
-  { img: "/images/category_kids_girls_wear_1780478079175.png", name: "Girls Festive Dress", price: "₹1,799", originalPrice: "₹3,499", discount: "49% OFF", rating: 4.8, reviews: 32, tag: "Festive", href: "/product/girls-festive-dress" },
-  { img: "/images/category_kids_party_wear_1780478097124.png", name: "Party Wear Gown", price: "₹2,299", originalPrice: "₹4,499", discount: "49% OFF", rating: 4.6, reviews: 28, tag: "Party", href: "/product/party-wear-gown" },
-  { img: "/images/category_kids_ethnic_wear_1780478114692.png", name: "Boys Ethnic Suit", price: "₹1,999", originalPrice: "₹3,999", discount: "50% OFF", rating: 4.7, reviews: 51, tag: "Heritage", href: "/product/boys-ethnic-suit" },
+  { img: "/images/category_kids_baby_wear_1780478061079.png", name: "Luxury Baby Ensemble", price: "₹1,299", originalPrice: "₹2,499", discount: "48% OFF", rating: 4.7, reviews: 45, tag: "Soft Fabric", href: "/product/luxury-baby-ensemble", stockCount: 3 },
+  { img: "/images/category_kids_girls_wear_1780478079175.png", name: "Girls Festive Dress", price: "₹1,799", originalPrice: "₹3,499", discount: "49% OFF", rating: 4.8, reviews: 32, tag: "Festive", href: "/product/girls-festive-dress", stockCount: 2 },
+  { img: "/images/category_kids_party_wear_1780478097124.png", name: "Party Wear Gown", price: "₹2,299", originalPrice: "₹4,499", discount: "49% OFF", rating: 4.6, reviews: 28, tag: "Party", href: "/product/party-wear-gown", stockCount: 6 },
+  { img: "/images/category_kids_ethnic_wear_1780478114692.png", name: "Boys Ethnic Suit", price: "₹1,999", originalPrice: "₹3,999", discount: "50% OFF", rating: 4.7, reviews: 51, tag: "Heritage", href: "/product/boys-ethnic-suit", stockCount: 1 },
 ];
 
 const INSTAGRAM_POSTS = [
@@ -97,6 +97,11 @@ function ProductCard({ prod }: { prod: typeof BEST_SELLERS[0] }) {
             <span className="text-sm font-semibold text-[#0A0A0A]">{prod.price}</span>
             <span className="text-xs text-foreground/35 line-through">{prod.originalPrice}</span>
           </div>
+          {prod.stockCount && prod.stockCount < 5 && (
+            <p className="text-[11px] text-[#D84545] mt-1.5 font-medium tracking-wide">
+              Only {prod.stockCount} left in stock
+            </p>
+          )}
         </div>
       </Link>
 
@@ -234,21 +239,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Banner prev/next arrows */}
-        <button
-          className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/60 transition-all z-20"
-          onClick={() => setCurrentBannerIndex(i => (i - 1 + banners.length) % banners.length)}
-          aria-label="Previous"
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-        <button
-          className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/60 transition-all z-20"
-          onClick={() => setCurrentBannerIndex(i => (i + 1) % banners.length)}
-          aria-label="Next"
-        >
-          <ArrowRight className="w-4 h-4" />
-        </button>
       </section>
 
       {/* ── Trust Strip ── */}
@@ -414,7 +404,7 @@ export default function Home() {
               <InstagramIcon className="w-5 h-5 text-[#D4AF6A]" />
               <p className="text-[10px] tracking-[0.3em] uppercase text-[#D4AF6A] font-semibold">Instagram</p>
             </div>
-            <h2 className="font-heading text-3xl md:text-4xl text-white mb-4">@orchid.designs_</h2>
+            <h2 className="font-heading text-3xl md:text-4xl text-white mb-4">@_orchid_designs_by_kunjus</h2>
             <p className="text-white/40 text-sm">Follow us for daily style inspiration</p>
           </div>
 
@@ -422,7 +412,7 @@ export default function Home() {
             {INSTAGRAM_POSTS.map((post, i) => (
               <a
                 key={i}
-                href="https://www.instagram.com/orchid.designs_"
+                href="https://www.instagram.com/_orchid_designs_by_kunjus?utm_source=qr&igsh=MWxjZDZpZXJpNzNvbg=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative aspect-square overflow-hidden bg-[#1A1A1A]"
@@ -443,7 +433,7 @@ export default function Home() {
 
           <div className="text-center">
             <a
-              href="https://www.instagram.com/orchid.designs_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+              href="https://www.instagram.com/_orchid_designs_by_kunjus?utm_source=qr&igsh=MWxjZDZpZXJpNzNvbg=="
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 border border-[#D4AF6A]/40 text-[#D4AF6A] px-10 py-4 text-[11px] tracking-[0.25em] uppercase hover:bg-[#D4AF6A] hover:text-[#0A0A0A] transition-all duration-300 font-medium"
