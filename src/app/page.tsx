@@ -207,21 +207,21 @@ export default function Home() {
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/50" />
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-6">
-          <p className="text-[#D4AF6A] text-[10px] tracking-[0.4em] uppercase mb-6 font-medium animate-in fade-in duration-1000">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-6 pt-32">
+          <p className="text-[#D4AF6A] text-[10px] tracking-[0.4em] uppercase mb-6 font-medium fade-in-up">
             {banner.tag}
           </p>
           <div ref={heroTextRef}>
-            <h1 className="font-heading text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] text-white font-medium tracking-tight leading-none whitespace-pre-line mb-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
+            <h1 className="font-heading text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] text-white font-medium tracking-tight leading-none whitespace-pre-line mb-6 fade-in-up">
               {banner.title}
             </h1>
           </div>
-          <p className="text-white/75 text-xs md:text-sm font-sans font-light tracking-[0.3em] uppercase max-w-lg mb-12 animate-in fade-in duration-1000 delay-300 fill-mode-both">
+          <p className="text-white/75 text-xs md:text-sm font-sans font-light tracking-[0.3em] uppercase max-w-lg mb-12 fade-in-up">
             {banner.subtitle}
           </p>
           <Link
             href={banner.href}
-            className="inline-flex items-center gap-3 border border-white/60 text-white px-10 py-4 text-[11px] tracking-[0.25em] uppercase hover:bg-white hover:text-[#0A0A0A] transition-all duration-400 font-medium animate-in fade-in duration-1000 delay-500 fill-mode-both"
+            className="inline-flex items-center gap-3 border border-white/60 text-white px-10 py-4 text-[11px] tracking-[0.25em] uppercase hover:bg-white hover:text-[#0A0A0A] transition-all duration-400 font-medium fade-in-up"
           >
             {banner.cta} <ArrowRight className="w-4 h-4" />
           </Link>
