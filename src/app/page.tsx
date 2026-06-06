@@ -1,35 +1,149 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
-import { Truck, ShieldCheck, Gem, RefreshCw, ArrowRight } from "lucide-react";
+import {
+  Truck, ShieldCheck, Gem, Star, ArrowRight, ArrowLeft, ChevronRight
+} from "lucide-react";
+
+function InstagramIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
 
 gsap.registerPlugin(ScrollTrigger);
+
+const BEST_SELLERS = [
+  { img: "/images/category_womens_sarees_1780477985126.png", name: "Regal Silk Saree", price: "₹4,999", originalPrice: "₹9,999", discount: "50% OFF", rating: 4.8, reviews: 124, tag: "Silk · Bestseller", href: "/product/regal-silk-saree" },
+  { img: "/images/category_womens_kurtis_1780478001731.png", name: "Embroidered Kurti", price: "₹1,499", originalPrice: "₹2,999", discount: "50% OFF", rating: 4.6, reviews: 89, tag: "Cotton · Top Rated", href: "/product/embroidered-kurti" },
+  { img: "/images/category_womens_kurta_sets_1780478021874.png", name: "Royal Kurta Set", price: "₹2,499", originalPrice: "₹4,999", discount: "50% OFF", rating: 4.9, reviews: 203, tag: "Designer · Premium", href: "/product/royal-kurta-set" },
+  { img: "/images/category_womens_tops_1780478037830.png", name: "Chic Fusion Top", price: "₹999", originalPrice: "₹1,999", discount: "50% OFF", rating: 4.5, reviews: 67, tag: "Modern · Casual", href: "/product/chic-fusion-top" },
+];
+
+const NEW_ARRIVALS = [
+  { img: "/images/category_kids_baby_wear_1780478061079.png", name: "Luxury Baby Ensemble", price: "₹1,299", originalPrice: "₹2,499", discount: "48% OFF", rating: 4.7, reviews: 45, tag: "Soft Fabric", href: "/product/luxury-baby-ensemble" },
+  { img: "/images/category_kids_girls_wear_1780478079175.png", name: "Girls Festive Dress", price: "₹1,799", originalPrice: "₹3,499", discount: "49% OFF", rating: 4.8, reviews: 32, tag: "Festive", href: "/product/girls-festive-dress" },
+  { img: "/images/category_kids_party_wear_1780478097124.png", name: "Party Wear Gown", price: "₹2,299", originalPrice: "₹4,499", discount: "49% OFF", rating: 4.6, reviews: 28, tag: "Party", href: "/product/party-wear-gown" },
+  { img: "/images/category_kids_ethnic_wear_1780478114692.png", name: "Boys Ethnic Suit", price: "₹1,999", originalPrice: "₹3,999", discount: "50% OFF", rating: 4.7, reviews: 51, tag: "Heritage", href: "/product/boys-ethnic-suit" },
+];
+
+const INSTAGRAM_POSTS = [
+  "/images/category_womens_sarees_1780477985126.png",
+  "/images/collection_wedding_1780477845042.png",
+  "/images/category_womens_kurtis_1780478001731.png",
+  "/images/lookbook_1_1780477942278.png",
+  "/images/category_womens_kurta_sets_1780478021874.png",
+  "/images/collection_premium_1780477860938.png",
+];
+
+function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="flex">
+        {[1, 2, 3, 4, 5].map(s => (
+          <Star
+            key={s}
+            className={`w-3 h-3 ${s <= Math.round(rating) ? "text-[#B8973E] fill-[#B8973E]" : "text-gray-200 fill-gray-200"}`}
+          />
+        ))}
+      </div>
+      <span className="text-[11px] text-foreground/40">({reviews})</span>
+    </div>
+  );
+}
+
+function ProductCard({ prod }: { prod: typeof BEST_SELLERS[0] }) {
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  return (
+    <div className="group relative">
+      <Link href={prod.href} className="block">
+        <div className="relative aspect-[3/4] overflow-hidden bg-[#F5F5F5] mb-4">
+          <Image
+            src={prod.img}
+            alt={prod.name}
+            fill
+            className="object-cover transition-all duration-700 group-hover:scale-108"
+            loading="lazy"
+          />
+          {/* Discount badge */}
+          <div className="absolute top-3 left-3 bg-[#0A0A0A] text-white text-[10px] font-bold tracking-wider px-2.5 py-1">
+            {prod.discount}
+          </div>
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-500" />
+          {/* Quick view button */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-out z-20">
+            <button className="w-full bg-white/95 backdrop-blur-sm text-[#0A0A0A] py-3 text-[10px] tracking-[0.2em] uppercase font-semibold hover:bg-[#0A0A0A] hover:text-white transition-all duration-300 shadow-lg">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[10px] tracking-widest text-[#B8973E] uppercase mb-1">{prod.tag}</p>
+          <h4 className="font-sans text-sm text-[#0A0A0A] mb-1.5 font-medium">{prod.name}</h4>
+          <StarRating rating={prod.rating} reviews={prod.reviews} />
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-sm font-semibold text-[#0A0A0A]">{prod.price}</span>
+            <span className="text-xs text-foreground/35 line-through">{prod.originalPrice}</span>
+          </div>
+        </div>
+      </Link>
+
+      {/* Wishlist button */}
+      <button
+        onClick={() => setIsWishlisted(!isWishlisted)}
+        className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-all z-10"
+        aria-label="Add to Wishlist"
+      >
+        <Star
+          className={`w-3.5 h-3.5 transition-colors ${isWishlisted ? "text-[#B8973E] fill-[#B8973E]" : "text-[#0A0A0A]/50"}`}
+        />
+      </button>
+    </div>
+  );
+}
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
   const storyRef = useRef<HTMLDivElement>(null);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
+  const banners = [
+    {
+      image: "/images/hero_luxury_saree_1780477829399.png",
+      tag: "New Season",
+      title: "ORCHID\nDESIGNS",
+      subtitle: "Elegance Woven Into Every Thread",
+      cta: "Explore Collection",
+      href: "/products",
+    },
+    {
+      image: "/images/collection_wedding_1780477845042.png",
+      tag: "The Bridal Edit",
+      title: "WEDDING\nCOUTURE",
+      subtitle: "Timeless Elegance for Your Special Day",
+      cta: "View Wedding Collection",
+      href: "/products/wedding",
+    },
+  ];
 
   useEffect(() => {
-    // Hero Animations
-    if (heroTextRef.current) {
-      const chars = heroTextRef.current.querySelectorAll(".char");
-      gsap.fromTo(
-        chars,
-        { y: 100, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, stagger: 0.05, ease: "power4.out", delay: 0.2 }
-      );
-    }
-    
     // Parallax on hero image
     if (heroRef.current) {
-      gsap.to(heroRef.current.querySelector("img"), {
-        yPercent: 30,
+      gsap.to(heroRef.current.querySelector(".hero-img"), {
+        yPercent: 20,
         ease: "none",
         scrollTrigger: {
           trigger: heroRef.current,
@@ -44,12 +158,12 @@ export default function Home() {
     if (storyRef.current) {
       gsap.fromTo(
         storyRef.current.querySelectorAll(".story-reveal"),
-        { y: 50, opacity: 0 },
+        { y: 60, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 1,
-          stagger: 0.2,
+          duration: 1.2,
+          stagger: 0.25,
           ease: "power3.out",
           scrollTrigger: {
             trigger: storyRef.current,
@@ -60,285 +174,325 @@ export default function Home() {
     }
   }, []);
 
-  const heroImage = "/images/hero_luxury_saree_1780477829399.png";
-  const brandStoryImage = "/images/brand_story_1780477925012.png";
-  
-  const featuredCollections = [
-    { title: "Wedding Collections", image: "/images/collection_wedding_1780477845042.png", link: "/products/wedding" },
-    { title: "Premium Collections", image: "/images/collection_premium_1780477860938.png", link: "/products/premium" },
-    { title: "Traditional Collections", image: "/images/collection_traditional_1780477879187.png", link: "/products/traditional" },
-    { title: "Trending Collections", image: "/images/collection_trending_1780477905998.png", link: "/products/trending" },
-  ];
+  // Auto-advance banner
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBannerIndex(i => (i + 1) % banners.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
+
+  const banner = banners[currentBannerIndex];
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-[100dvh] bg-[#FAFAFA]">
       <Navbar />
 
-      {/* Hero Section */}
-      <section ref={heroRef} className="relative h-screen w-full overflow-hidden bg-[#111]">
-        <Image
-          src={heroImage}
-          alt="Luxury Bridal Saree"
-          fill
-          className="object-cover object-center opacity-80"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/20" />
-        
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-4">
-        <div ref={heroTextRef} className="overflow-hidden mb-4 px-4">
-            <h1 className="font-heading text-4xl sm:text-6xl md:text-8xl lg:text-9xl text-white font-medium tracking-tight">
-              {"ORCHID DESIGNS".split("").map((char, i) => (
-                <span key={i} className="char inline-block">{char === " " ? "\u00A0" : char}</span>
-              ))}
+      {/* ── Hero Banner ── */}
+      <section ref={heroRef} className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden bg-[#0A0A0A]">
+        <div className="hero-img absolute inset-0 scale-110">
+          <Image
+            src={banner.image}
+            alt="Orchid Designs"
+            fill
+            className="object-cover object-center opacity-70 transition-opacity duration-1000"
+            priority
+          />
+        </div>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/50" />
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-6">
+          <p className="text-[#D4AF6A] text-[10px] tracking-[0.4em] uppercase mb-6 font-medium animate-in fade-in duration-1000">
+            {banner.tag}
+          </p>
+          <div ref={heroTextRef}>
+            <h1 className="font-heading text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] text-white font-medium tracking-tight leading-none whitespace-pre-line mb-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
+              {banner.title}
             </h1>
           </div>
-          <p className="text-white/90 text-sm md:text-xl font-sans font-light tracking-widest uppercase max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700 fill-mode-both px-4">
-            Elegance Woven Into Every Thread
+          <p className="text-white/75 text-xs md:text-sm font-sans font-light tracking-[0.3em] uppercase max-w-lg mb-12 animate-in fade-in duration-1000 delay-300 fill-mode-both">
+            {banner.subtitle}
           </p>
-          <div className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-1000 fill-mode-both">
-            <Link 
-              href="/products" 
-              className="inline-block bg-white text-black px-10 py-4 uppercase tracking-widest text-sm hover:bg-white/90 transition-colors font-medium"
-            >
-              Explore Collection
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Products Preview Section (Moved just under Hero) */}
-      <section className="py-32 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="flex justify-between items-end mb-16">
-          <h2 className="font-heading text-4xl md:text-5xl text-foreground font-medium">New Arrivals</h2>
-          <Link href="/products" className="text-foreground border-b border-foreground pb-1 text-sm uppercase tracking-widest hover:text-primary hover:border-primary transition-colors hidden md:block">
-            Shop All
+          <Link
+            href={banner.href}
+            className="inline-flex items-center gap-3 border border-white/60 text-white px-10 py-4 text-[11px] tracking-[0.25em] uppercase hover:bg-white hover:text-[#0A0A0A] transition-all duration-400 font-medium animate-in fade-in duration-1000 delay-500 fill-mode-both"
+          >
+            {banner.cta} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        {/* First Row: 4 Products */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-24">
-          {[
-            { img: "/images/category_womens_sarees_1780477985126.png", name: "Regal Silk Saree", price: "₹35,000", tag: "Silk" },
-            { img: "/images/category_womens_kurtis_1780478001731.png", name: "Embroidered Kurti", price: "₹12,500", tag: "Cotton" },
-            { img: "/images/category_womens_kurta_sets_1780478021874.png", name: "Royal Kurta Set", price: "₹28,000", tag: "Designer" },
-            { img: "/images/category_womens_tops_1780478037830.png", name: "Chic Fusion Top", price: "₹8,900", tag: "Modern" },
-          ].map((prod, i) => (
-            <Link href={`/product/${prod.name.toLowerCase().replace(/\s+/g, '-')}`} key={i} className="group cursor-pointer block">
-              <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-4">
-                <Image
-                  src={prod.img}
-                  alt={prod.name}
-                  fill
-                  className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
-                  <button className="w-full bg-white/90 backdrop-blur-sm text-black py-3 text-xs tracking-widest uppercase font-medium hover:bg-primary hover:text-white transition-colors shadow-lg">
-                    Add to Bag
-                  </button>
-                </div>
-              </div>
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-sans text-xs md:text-sm tracking-wide text-foreground uppercase mb-1">{prod.name}</h4>
-                  <p className="font-sans text-foreground/50 text-xs">{prod.tag}</p>
-                </div>
-                <p className="font-sans text-foreground/80 text-sm font-medium">{prod.price}</p>
-              </div>
-            </Link>
+        {/* Banner navigation dots */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+          {banners.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentBannerIndex(i)}
+              className={`transition-all duration-300 ${i === currentBannerIndex ? "w-8 h-1 bg-[#D4AF6A]" : "w-2 h-1 bg-white/30"}`}
+              aria-label={`Slide ${i + 1}`}
+            />
           ))}
         </div>
 
-        {/* Large Campaign Banner 1 */}
-        <div className="relative w-full aspect-[16/9] md:aspect-[21/9] overflow-hidden mb-24 group">
-          <Image
-            src="/images/collection_wedding_1780477845042.png"
-            alt="Wedding Campaign"
-            fill
-            className="object-cover transition-transform duration-[2s] group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-16 md:pb-24">
-            <span className="text-white/80 tracking-widest text-xs uppercase mb-4 font-sans">The Bridal Edit</span>
-            <h3 className="font-heading text-4xl md:text-6xl text-white font-medium tracking-wide mb-8">Timeless Elegance</h3>
-            <Link href="/products/wedding" className="bg-white text-black px-8 py-3 uppercase tracking-widest text-xs font-medium hover:bg-black hover:text-white transition-colors">
-              Discover More
-            </Link>
-          </div>
-        </div>
+        {/* Banner prev/next arrows */}
+        <button
+          className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/60 transition-all z-20"
+          onClick={() => setCurrentBannerIndex(i => (i - 1 + banners.length) % banners.length)}
+          aria-label="Previous"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <button
+          className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/60 transition-all z-20"
+          onClick={() => setCurrentBannerIndex(i => (i + 1) % banners.length)}
+          aria-label="Next"
+        >
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </section>
 
-        <div className="flex justify-between items-end mb-16">
-          <h2 className="font-heading text-4xl md:text-5xl text-foreground font-medium">Kids Collection</h2>
-        </div>
-
-        {/* Second Row: 4 Products */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-24">
+      {/* ── Trust Strip ── */}
+      <section className="py-5 px-6 border-y border-black/6 bg-white">
+        <div className="max-w-[1600px] mx-auto flex flex-wrap items-center justify-center gap-x-12 gap-y-3 text-[#0A0A0A]/50 text-[10px] tracking-[0.2em] uppercase font-medium">
           {[
-            { img: "/images/category_kids_baby_wear_1780478061079.png", name: "Luxury Baby Ensemble", price: "₹6,500", tag: "Soft Fabric" },
-            { img: "/images/category_kids_girls_wear_1780478079175.png", name: "Girls Festive Dress", price: "₹9,000", tag: "Festive" },
-            { img: "/images/category_kids_party_wear_1780478097124.png", name: "Party Wear Gown", price: "₹14,500", tag: "Party" },
-            { img: "/images/category_kids_ethnic_wear_1780478114692.png", name: "Boys Ethnic Suit", price: "₹11,000", tag: "Heritage" },
-          ].map((prod, i) => (
-            <Link href={`/product/${prod.name.toLowerCase().replace(/\s+/g, '-')}`} key={i} className="group cursor-pointer block">
-              <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-4">
-                <Image
-                  src={prod.img}
-                  alt={prod.name}
-                  fill
-                  className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
-                  <button className="w-full bg-white/90 backdrop-blur-sm text-black py-3 text-xs tracking-widest uppercase font-medium hover:bg-primary hover:text-white transition-colors shadow-lg">
-                    Add to Bag
-                  </button>
-                </div>
-              </div>
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-sans text-xs md:text-sm tracking-wide text-foreground uppercase mb-1">{prod.name}</h4>
-                  <p className="font-sans text-foreground/50 text-xs">{prod.tag}</p>
-                </div>
-                <p className="font-sans text-foreground/80 text-sm font-medium">{prod.price}</p>
-              </div>
-            </Link>
+            { icon: <Truck className="w-4 h-4" />, text: "Free Shipping" },
+            { icon: <ShieldCheck className="w-4 h-4" />, text: "Secure Checkout" },
+            { icon: <Gem className="w-4 h-4" />, text: "Premium Quality" },
+            { icon: <Star className="w-3.5 h-3.5" />, text: "4.8★ Rated" },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-2">
+              {item.icon}
+              <span>{item.text}</span>
+            </div>
           ))}
-        </div>
-
-        {/* Large Campaign Banner 2 */}
-        <div className="relative w-full aspect-[16/9] md:aspect-[21/9] overflow-hidden group">
-          <Image
-            src="/images/collection_premium_1780477860938.png"
-            alt="Modern Elegance Campaign"
-            fill
-            className="object-cover transition-transform duration-[2s] group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <h3 className="font-heading text-4xl md:text-6xl text-white font-medium tracking-wide mb-8">Modern Indian Elegance</h3>
-            <Link href="/products/premium" className="bg-transparent border border-white text-white px-8 py-3 uppercase tracking-widest text-xs font-medium hover:bg-white hover:text-black transition-colors">
-              Shop The Campaign
-            </Link>
-          </div>
         </div>
       </section>
 
-      {/* Brand Story Section */}
+      {/* ── Best Sellers ── */}
+      <section className="py-24 md:py-32 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex justify-between items-end mb-14">
+          <div>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-[#B8973E] font-semibold mb-3">Most Loved</p>
+            <h2 className="font-heading text-4xl md:text-5xl text-[#0A0A0A]">Best Sellers</h2>
+          </div>
+          <Link href="/products" className="hidden md:flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase border-b border-[#0A0A0A]/30 pb-0.5 text-[#0A0A0A]/60 hover:text-[#0A0A0A] hover:border-[#0A0A0A] transition-all">
+            View All <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+          {BEST_SELLERS.map((prod, i) => (
+            <ProductCard key={i} prod={prod} />
+          ))}
+        </div>
+        <div className="mt-8 flex md:hidden justify-center">
+          <Link href="/products" className="text-[11px] tracking-[0.2em] uppercase border border-[#0A0A0A]/20 px-8 py-3 text-[#0A0A0A]/60 hover:border-[#0A0A0A] hover:text-[#0A0A0A] transition-all">
+            View All
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Full-width Campaign Banner ── */}
+      <section className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden group mb-0">
+        <Image
+          src="/images/collection_wedding_1780477845042.png"
+          alt="Wedding Campaign"
+          fill
+          className="object-cover transition-transform duration-[2s] group-hover:scale-103"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 flex flex-col items-start justify-center pl-8 md:pl-20 lg:pl-32">
+          <span className="text-[#D4AF6A] text-[10px] tracking-[0.4em] uppercase mb-4">The Bridal Edit</span>
+          <h3 className="font-heading text-4xl md:text-6xl lg:text-7xl text-white mb-6 max-w-lg leading-tight">
+            Timeless<br />Elegance
+          </h3>
+          <Link
+            href="/products/wedding"
+            className="inline-flex items-center gap-3 bg-white text-[#0A0A0A] px-8 py-3.5 text-[11px] tracking-[0.2em] uppercase font-semibold hover:bg-[#D4AF6A] hover:text-white transition-all duration-300"
+          >
+            Discover More <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ── New Arrivals ── */}
+      <section className="py-24 md:py-32 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex justify-between items-end mb-14">
+          <div>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-[#B8973E] font-semibold mb-3">Just Landed</p>
+            <h2 className="font-heading text-4xl md:text-5xl text-[#0A0A0A]">New Arrivals</h2>
+          </div>
+          <Link href="/products" className="hidden md:flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase border-b border-[#0A0A0A]/30 pb-0.5 text-[#0A0A0A]/60 hover:text-[#0A0A0A] hover:border-[#0A0A0A] transition-all">
+            View All <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+          {NEW_ARRIVALS.map((prod, i) => (
+            <ProductCard key={i} prod={prod} />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Brand Story ── */}
       <section ref={storyRef} className="py-24 px-6 md:px-12 max-w-[1400px] mx-auto">
         <div className="flex flex-col md:flex-row items-center gap-16 md:gap-24">
-          <div className="w-full md:w-1/2 h-[350px] md:h-[600px] relative story-reveal overflow-hidden">
+          <div className="w-full md:w-1/2 aspect-[4/5] relative story-reveal overflow-hidden bg-[#F0F0F0]">
             <Image
-              src={brandStoryImage}
+              src="/images/brand_story_1780477925012.png"
               alt="Brand Craftsmanship"
               fill
               className="object-cover"
+              loading="lazy"
             />
+            {/* Gold frame accent */}
+            <div className="absolute inset-4 border border-[#D4AF6A]/20 pointer-events-none" />
           </div>
           <div className="w-full md:w-1/2 flex flex-col gap-8 story-reveal">
-            <h2 className="font-heading text-4xl md:text-6xl text-foreground font-medium leading-tight">
-              The Essence of <br /> Luxury Heritage
+            <p className="text-[10px] tracking-[0.3em] uppercase text-[#B8973E] font-semibold">Our Story</p>
+            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl text-[#0A0A0A] leading-tight">
+              The Essence of<br />Luxury Heritage
             </h2>
-            <p className="text-foreground/70 text-lg font-light leading-relaxed max-w-lg">
-              At Orchid Designs, we believe in the timeless beauty of Indian craftsmanship. 
-              Our collections are a tribute to the rich heritage of Kerala, reimagined with modern elegance for the contemporary aesthetic.
+            <div className="w-12 h-px bg-[#B8973E]" />
+            <p className="text-[#0A0A0A]/55 text-base font-light leading-relaxed max-w-md">
+              At Orchid Designs, we believe in the timeless beauty of Indian craftsmanship.
+              Our collections are a tribute to the rich heritage of Kerala, reimagined with
+              modern elegance for the contemporary aesthetic.
             </p>
-            <p className="text-foreground/70 text-lg font-light leading-relaxed max-w-lg">
-              Every piece is a work of art, meticulously handcrafted to bring out the royal essence in you. 
-              Experience fashion that speaks the language of luxury.
+            <p className="text-[#0A0A0A]/55 text-base font-light leading-relaxed max-w-md">
+              Every piece is a work of art, meticulously handcrafted to bring out the royal
+              essence in you. Experience fashion that speaks the language of luxury.
             </p>
-            <div>
-              <Link 
-                href="/about" 
-                className="inline-block border-b border-foreground pb-1 text-foreground uppercase tracking-widest text-sm hover:text-primary hover:border-primary transition-colors"
-              >
-                Discover Our Story
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Collections */}
-      <section className="py-20">
-        {featuredCollections.map((collection, index) => (
-          <div key={index} className="group relative h-[50vh] md:h-[80vh] w-full overflow-hidden mb-4 last:mb-0">
-            <Image
-              src={collection.image}
-              alt={collection.title}
-              fill
-              className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-700" />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <h3 className="font-heading text-5xl md:text-7xl text-white font-medium tracking-tight translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 ease-out">
-                {collection.title}
-              </h3>
-            </div>
-            <Link href={collection.link} className="absolute inset-0 z-20">
-              <span className="sr-only">View {collection.title}</span>
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-3 text-[11px] tracking-[0.2em] uppercase text-[#0A0A0A] border-b border-[#0A0A0A]/30 pb-0.5 w-fit hover:text-[#B8973E] hover:border-[#B8973E] transition-all"
+            >
+              Discover Our Story <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-        ))}
+        </div>
       </section>
-      
-      {/* E-commerce Value Propositions */}
-      <section className="py-16 px-6 border-y border-black/10 bg-secondary/30">
-        <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-black/10">
-          <div className="flex flex-col items-center text-center px-4 py-4 md:py-0">
-            <Truck className="w-8 h-8 mb-4 text-foreground/80" strokeWidth={1.5} />
-            <h4 className="font-heading text-xl mb-2 text-foreground">Complimentary Shipping</h4>
-            <p className="font-sans text-xs text-foreground/60 leading-relaxed">Enjoy free express delivery on all orders across India.</p>
+
+      {/* ── Category Tiles ── */}
+      <section className="py-20 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="text-center mb-14">
+          <p className="text-[10px] tracking-[0.3em] uppercase text-[#B8973E] font-semibold mb-3">Shop By Category</p>
+          <h2 className="font-heading text-4xl md:text-5xl text-[#0A0A0A]">Explore Collections</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+          {[
+            { name: "Sarees", img: "/images/category_womens_sarees_1780477985126.png", href: "/products/sarees" },
+            { name: "Kurtis", img: "/images/category_womens_kurtis_1780478001731.png", href: "/products/kurtis" },
+            { name: "Kurta Sets", img: "/images/category_womens_kurta_sets_1780478021874.png", href: "/products/kurta-sets" },
+            { name: "Office Wear", img: "/images/category_womens_tops_1780478037830.png", href: "/products/office-wear" },
+            { name: "Baby Wear", img: "/images/category_kids_baby_wear_1780478061079.png", href: "/products/baby-wear" },
+            { name: "Girls Wear", img: "/images/category_kids_girls_wear_1780478079175.png", href: "/products/girls-wear" },
+            { name: "Party Wear", img: "/images/category_kids_party_wear_1780478097124.png", href: "/products/party-wear" },
+            { name: "Ethnic Wear", img: "/images/category_kids_ethnic_wear_1780478114692.png", href: "/products/ethnic-wear" },
+          ].map((cat, i) => (
+            <Link key={i} href={cat.href} className="group relative aspect-square overflow-hidden bg-[#F5F5F5]">
+              <Image
+                src={cat.img}
+                alt={cat.name}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-108"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-500" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-heading text-xl md:text-2xl text-white tracking-wide">{cat.name}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Instagram Section ── */}
+      <section className="min-h-[100dvh] flex flex-col bg-[#0A0A0A]">
+        <div className="max-w-[1600px] mx-auto py-24 px-6 md:px-12 w-full">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <InstagramIcon className="w-5 h-5 text-[#D4AF6A]" />
+              <p className="text-[10px] tracking-[0.3em] uppercase text-[#D4AF6A] font-semibold">Instagram</p>
+            </div>
+            <h2 className="font-heading text-3xl md:text-4xl text-white mb-4">@orchid.designs_</h2>
+            <p className="text-white/40 text-sm">Follow us for daily style inspiration</p>
           </div>
-          <div className="flex flex-col items-center text-center px-4 py-4 md:py-0">
-            <Gem className="w-8 h-8 mb-4 text-foreground/80" strokeWidth={1.5} />
-            <h4 className="font-heading text-xl mb-2 text-foreground">Artisanal Quality</h4>
-            <p className="font-sans text-xs text-foreground/60 leading-relaxed">Meticulously handcrafted using premium, authentic materials.</p>
+
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-10">
+            {INSTAGRAM_POSTS.map((post, i) => (
+              <a
+                key={i}
+                href="https://www.instagram.com/orchid.designs_"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square overflow-hidden bg-[#1A1A1A]"
+              >
+                <Image
+                  src={post}
+                  alt={`Instagram post ${i + 1}`}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:opacity-80"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20">
+                  <InstagramIcon className="w-6 h-6 text-white" />
+                </div>
+              </a>
+            ))}
           </div>
-          <div className="flex flex-col items-center text-center px-4 py-4 md:py-0">
-            <ShieldCheck className="w-8 h-8 mb-4 text-foreground/80" strokeWidth={1.5} />
-            <h4 className="font-heading text-xl mb-2 text-foreground">Secure Payments</h4>
-            <p className="font-sans text-xs text-foreground/60 leading-relaxed">Encrypted transactions for a seamless checkout experience.</p>
-          </div>
-          <div className="flex flex-col items-center text-center px-4 py-4 md:py-0">
-            <RefreshCw className="w-8 h-8 mb-4 text-foreground/80" strokeWidth={1.5} />
-            <h4 className="font-heading text-xl mb-2 text-foreground">Easy Returns</h4>
-            <p className="font-sans text-xs text-foreground/60 leading-relaxed">14-day hassle-free returns on all unworn items.</p>
+
+          <div className="text-center">
+            <a
+              href="https://www.instagram.com/orchid.designs_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 border border-[#D4AF6A]/40 text-[#D4AF6A] px-10 py-4 text-[11px] tracking-[0.25em] uppercase hover:bg-[#D4AF6A] hover:text-[#0A0A0A] transition-all duration-300 font-medium"
+            >
+              <InstagramIcon className="w-4 h-4" />
+              Follow Us on Instagram
+            </a>
           </div>
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-32 px-6 bg-[#FAF7F4]">
+      {/* ── Testimonials ── */}
+      <section className="py-32 px-6 bg-[#FAFAFA]">
         <div className="max-w-3xl mx-auto text-center">
-          <span className="font-sans text-xs tracking-widest uppercase text-foreground/60 mb-4 block">The Orchid Club</span>
-          <h2 className="font-heading text-4xl md:text-5xl text-foreground font-medium mb-6">Join The Inner Circle</h2>
-          <p className="font-sans text-sm text-foreground/70 mb-12 max-w-lg mx-auto leading-relaxed">
+          <div className="flex justify-center mb-6">
+            {[1,2,3,4,5].map(s => <Star key={s} className="w-5 h-5 text-[#B8973E] fill-[#B8973E]" />)}
+          </div>
+          <span className="text-[10px] tracking-[0.3em] uppercase text-[#B8973E] font-semibold mb-8 block">Client Stories</span>
+          <h2 className="font-heading text-2xl md:text-4xl text-[#0A0A0A] font-normal leading-relaxed mb-8 italic">
+            "Orchid Designs created the most magical ensemble for my wedding. The craftsmanship and attention to detail are truly world-class, making me feel like royalty."
+          </h2>
+          <p className="font-sans text-sm tracking-[0.2em] uppercase text-[#0A0A0A]/40">— Ananya S., Kerala</p>
+        </div>
+      </section>
+
+      {/* ── Newsletter ── */}
+      <section className="py-24 px-6 bg-[#0A0A0A]">
+        <div className="max-w-2xl mx-auto text-center">
+          <span className="text-[10px] tracking-[0.3em] uppercase text-[#D4AF6A] font-semibold mb-4 block">The Orchid Club</span>
+          <h2 className="font-heading text-3xl md:text-4xl text-white mb-4">Join The Inner Circle</h2>
+          <p className="font-sans text-sm text-white/40 mb-10 leading-relaxed">
             Subscribe to receive exclusive access to new collections, early sale previews, and 10% off your first purchase.
           </p>
-          <form className="flex flex-col md:flex-row gap-4 max-w-xl mx-auto">
-            <input 
-              type="email" 
-              placeholder="Enter your email address" 
-              className="flex-1 bg-transparent border-b border-foreground/30 px-4 py-3 text-sm focus:outline-none focus:border-foreground placeholder:text-foreground/40 transition-colors rounded-none"
+          <form className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Your email address"
+              className="flex-1 bg-white/5 border border-white/15 px-5 py-4 text-base md:text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#D4AF6A]/50 transition-colors rounded-none"
               required
             />
-            <button type="submit" className="bg-foreground text-background px-8 py-3 text-xs tracking-widest uppercase font-medium hover:bg-primary transition-colors flex items-center justify-center gap-2">
+            <button
+              type="submit"
+              className="bg-[#B8973E] text-white px-8 py-4 text-[11px] tracking-[0.2em] uppercase font-semibold hover:bg-[#D4AF6A] transition-colors flex items-center justify-center gap-2 shrink-0"
+            >
               Subscribe <ArrowRight className="w-4 h-4" />
             </button>
           </form>
         </div>
       </section>
-
-      {/* Testimonials */}
-      <section className="py-32 px-6 bg-background">
-        <div className="max-w-4xl mx-auto text-center">
-          <span className="text-primary tracking-widest text-sm uppercase font-semibold mb-8 block">Client Stories</span>
-          <h2 className="font-heading text-3xl md:text-5xl text-foreground font-medium leading-tight mb-12">
-            "Orchid Designs created the most magical ensemble for my wedding. The craftsmanship and attention to detail are truly world-class, making me feel like royalty."
-          </h2>
-          <p className="font-sans text-sm tracking-widest uppercase text-foreground/60">— Ananya S., Kerala</p>
-        </div>
-      </section>
-      
     </main>
   );
 }

@@ -17,13 +17,13 @@ export default function ContactPage() {
 
           <form className="flex flex-col gap-8 max-w-md">
             <div>
-              <input type="text" placeholder="YOUR NAME" className="w-full bg-transparent border-b border-black/20 pb-4 text-sm tracking-wide focus:outline-none focus:border-primary transition-colors placeholder:text-foreground/40" />
+              <input type="text" placeholder="YOUR NAME" className="w-full bg-transparent border-b border-black/20 pb-4 text-base md:text-sm tracking-wide focus:outline-none focus:border-primary transition-colors placeholder:text-foreground/40" />
             </div>
             <div>
-              <input type="email" placeholder="EMAIL ADDRESS" className="w-full bg-transparent border-b border-black/20 pb-4 text-sm tracking-wide focus:outline-none focus:border-primary transition-colors placeholder:text-foreground/40" />
+              <input type="email" placeholder="EMAIL ADDRESS" className="w-full bg-transparent border-b border-black/20 pb-4 text-base md:text-sm tracking-wide focus:outline-none focus:border-primary transition-colors placeholder:text-foreground/40" />
             </div>
             <div>
-              <textarea placeholder="MESSAGE" rows={4} className="w-full bg-transparent border-b border-black/20 pb-4 text-sm tracking-wide focus:outline-none focus:border-primary transition-colors placeholder:text-foreground/40 resize-none"></textarea>
+              <textarea placeholder="MESSAGE" rows={4} className="w-full bg-transparent border-b border-black/20 pb-4 text-base md:text-sm tracking-wide focus:outline-none focus:border-primary transition-colors placeholder:text-foreground/40 resize-none"></textarea>
             </div>
             <button type="button" className="bg-foreground text-background py-4 uppercase tracking-widest text-sm hover:bg-primary transition-colors">
               Send Message
@@ -32,8 +32,11 @@ export default function ContactPage() {
 
           <div className="mt-24 space-y-4">
             <h4 className="font-heading text-xl text-foreground">Orchid Designs Boutique</h4>
-            <p className="text-foreground/70 font-light text-sm">MG Road, Kochi, Kerala, India</p>
-            <p className="text-foreground/70 font-light text-sm">+91 98765 43210 | info@orchiddesigns.com</p>
+            <p className="text-foreground/70 font-light text-sm mb-1">Kochi, Kerala, India</p>
+            <p className="text-foreground/70 font-light text-sm mb-1"><a href="tel:+917559066838" className="hover:text-primary transition-colors">+91 7559066838</a></p>
+            <p className="text-foreground/70 font-light text-sm">
+              <a href="mailto:info@orchiddesigns.com" className="hover:text-primary transition-colors">info@orchiddesigns.com</a> | <a href="mailto:orchiddesignsbykunjus@gmail.com" className="hover:text-primary transition-colors">orchiddesignsbykunjus@gmail.com</a>
+            </p>
           </div>
         </div>
         

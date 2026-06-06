@@ -1,190 +1,433 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Heart, Star, Truck, ShieldCheck, RefreshCw, ZoomIn } from "lucide-react";
 import { useCart } from "@/components/CartContext";
+
+const PRODUCT_DB: Record<string, {
+  name: string;
+  price: number;
+  originalPrice: number;
+  rating: number;
+  reviews: number;
+  isSaree: boolean;
+  fabric: string;
+  sareeLength?: string;
+  blousePiece?: string;
+  occasion: string;
+  careInstructions: string;
+  description: string;
+  images: string[];
+  tag: string;
+  sizes?: string[];
+}> = {
+  "regal-silk-saree": {
+    name: "Regal Silk Saree",
+    price: 4999, originalPrice: 9999,
+    rating: 4.8, reviews: 124,
+    isSaree: true,
+    fabric: "Pure Banarasi Silk",
+    sareeLength: "6.3 meters",
+    blousePiece: "Unstitched Blouse Piece Included",
+    occasion: "Wedding · Festive · Reception",
+    careInstructions: "Dry Clean Only. Store in cotton muslin bag away from direct sunlight. Do not wring or twist.",
+    description: "A masterpiece of Indian craftsmanship, this Regal Silk Saree is woven with 100% pure Banarasi silk and features intricate zari embroidery. Each saree takes skilled weavers weeks to complete, resulting in a piece that is truly one-of-a-kind.",
+    images: [
+      "/images/category_womens_sarees_1780477985126.png",
+      "/images/lookbook_1_1780477942278.png",
+      "/images/collection_traditional_1780477879187.png",
+      "/images/brand_story_1780477925012.png",
+    ],
+    tag: "Pure Silk · Bestseller",
+  },
+  "embroidered-kurti": {
+    name: "Embroidered Kurti",
+    price: 1499, originalPrice: 2999,
+    rating: 4.6, reviews: 89,
+    isSaree: false,
+    fabric: "Premium Cotton",
+    occasion: "Casual · Daily Wear · Office",
+    careInstructions: "Machine washable in cold water. Iron on medium heat. Do not bleach.",
+    description: "Beautifully crafted with fine thread embroidery, this kurti combines comfort with elegance. Perfect for everyday wear and casual occasions.",
+    images: [
+      "/images/category_womens_kurtis_1780478001731.png",
+      "/images/category_womens_tops_1780478037830.png",
+    ],
+    tag: "Cotton · New Arrival",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+  },
+  "royal-kurta-set": {
+    name: "Royal Kurta Set",
+    price: 2499, originalPrice: 4999,
+    rating: 4.9, reviews: 203,
+    isSaree: false,
+    fabric: "Chanderi Silk",
+    occasion: "Festive · Wedding · Party",
+    careInstructions: "Dry clean preferred. Hand wash in cold water if needed. Do not tumble dry.",
+    description: "An exquisite three-piece kurta set crafted from premium Chanderi fabric. Features delicate hand-block printing and comes with matching dupatta and palazzo pants.",
+    images: [
+      "/images/category_womens_kurta_sets_1780478021874.png",
+      "/images/collection_premium_1780477860938.png",
+    ],
+    tag: "Chanderi · Premium",
+    sizes: ["XS", "S", "M", "L", "XL"],
+  },
+};
+
+function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex">
+        {[1, 2, 3, 4, 5].map(s => (
+          <Star key={s} className={`w-4 h-4 ${s <= Math.round(rating) ? "text-[#B8973E] fill-[#B8973E]" : "text-gray-200 fill-gray-200"}`} />
+        ))}
+      </div>
+      <span className="text-sm font-semibold text-[#0A0A0A]">{rating}</span>
+      <span className="text-sm text-foreground/40">({reviews} reviews)</span>
+    </div>
+  );
+}
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const slug = (params?.slug as string) || "";
   const { addItem } = useCart();
 
+  const product = PRODUCT_DB[slug] || {
+    name: slug.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    price: 4999, originalPrice: 9999,
+    rating: 4.8, reviews: 124,
+    isSaree: slug.includes("saree"),
+    fabric: "Premium Fabric",
+    sareeLength: "6.3 meters",
+    blousePiece: "Unstitched Blouse Piece Included",
+    occasion: "Festive · Wedding",
+    careInstructions: "Dry Clean Only. Handle with care.",
+    description: "Elegance redefined. This exquisite piece embodies the essence of luxury fashion, featuring meticulous craftsmanship and premium materials.",
+    images: [
+      "/images/lookbook_1_1780477942278.png",
+      "/images/category_womens_sarees_1780477985126.png",
+      "/images/category_womens_kurtis_1780478001731.png",
+      "/images/category_womens_kurta_sets_1780478021874.png",
+    ],
+    tag: "Luxury · Handcrafted",
+    sizes: ["XS", "S", "M", "L", "XL"],
+  };
+
+  const [mainImgIndex, setMainImgIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [activeAccordion, setActiveAccordion] = useState("description");
   const [showToast, setShowToast] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const mainImgRef = useRef<HTMLDivElement>(null);
+
+  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 
   const handleAddToBag = () => {
-    if (!selectedSize) return;
+    if (!product.isSaree && !selectedSize) return;
     addItem({
       slug,
-      name: productName,
-      price: 35000,
-      size: selectedSize,
-      image: images[0],
+      name: product.name,
+      price: product.price,
+      size: product.isSaree ? "Free Size" : selectedSize,
+      image: product.images[0],
     });
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
 
-  // Format the slug back into a readable name
-  const productName = slug ? slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "Product";
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!mainImgRef.current) return;
+    const rect = mainImgRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPos({ x, y });
+  };
 
-  // Mock images for the gallery
-  const images = [
-    `/images/lookbook_1_1780477942278.png`,
-    "/images/category_womens_sarees_1780477985126.png",
-    "/images/category_womens_kurtis_1780478001731.png",
-    "/images/category_womens_kurta_sets_1780478021874.png"
-  ];
-  const [mainImg, setMainImg] = useState(images[0]);
+  const prevImg = () => setMainImgIndex(i => (i - 1 + product.images.length) % product.images.length);
+  const nextImg = () => setMainImgIndex(i => (i + 1) % product.images.length);
+
+  // Touch swipe support
+  const touchStartX = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? nextImg() : prevImg();
+    touchStartX.current = null;
+  };
+
+  const accordion = (key: string) => (
+    <button
+      onClick={() => setActiveAccordion(activeAccordion === key ? '' : key)}
+      className="flex justify-between items-center w-full text-left font-sans text-[11px] tracking-[0.2em] uppercase text-[#0A0A0A] font-semibold py-5"
+    >
+      <span>{key === 'description' ? 'Description' : key === 'details' ? 'Product Details' : 'Shipping & Returns'}</span>
+      {activeAccordion === key ? <ChevronUp className="w-4 h-4 text-foreground/40" /> : <ChevronDown className="w-4 h-4 text-foreground/40" />}
+    </button>
+  );
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-[#FAFAFA]">
       <Navbar />
-      <div className="h-24"></div> {/* Spacer */}
+      <div className="h-20 md:h-24" />
 
-      <div className="container mx-auto px-6 md:px-12 py-12 max-w-[1600px] flex flex-col lg:flex-row gap-16 lg:gap-24 pb-32">
-        
-        {/* Left: Image Gallery */}
-        <div className="w-full lg:w-[55%] flex flex-col-reverse sm:flex-row gap-3 lg:gap-6 h-[50vh] sm:h-[60vh] md:h-[80vh] min-h-[350px]">
-          {/* Thumbnails — hidden on mobile, shown sm+ */}
-          <div className="hidden sm:flex w-16 md:w-28 shrink-0 flex-col gap-3 overflow-y-auto overscroll-contain pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {images.map((img, idx) => (
+      {/* Breadcrumb */}
+      <div className="px-6 md:px-12 py-4 border-b border-black/5 bg-white">
+        <div className="max-w-[1600px] mx-auto flex items-center gap-2 text-[11px] text-foreground/40 tracking-wide">
+          <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+          <span>/</span>
+          <Link href="/products" className="hover:text-foreground transition-colors">Collections</Link>
+          <span>/</span>
+          <span className="text-foreground/70">{product.name}</span>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 md:px-12 py-10 max-w-[1600px] flex flex-col lg:flex-row gap-12 lg:gap-20 pb-32">
+
+        {/* ── Left: Image Gallery ── */}
+        <div className="w-full lg:w-[55%] flex flex-col-reverse sm:flex-row gap-4">
+          {/* Thumbnails */}
+          <div className="hidden sm:flex sm:flex-col gap-3 w-20 shrink-0">
+            {product.images.map((img, idx) => (
               <button
                 key={idx}
-                onClick={() => setMainImg(img)}
-                className={`relative aspect-[3/4] w-full bg-secondary overflow-hidden transition-all ${
-                  mainImg === img ? 'ring-1 ring-foreground ring-offset-2' : 'hover:opacity-80'
+                onClick={() => setMainImgIndex(idx)}
+                className={`relative aspect-[3/4] w-full bg-[#F5F5F5] overflow-hidden transition-all ${
+                  mainImgIndex === idx ? 'ring-1 ring-[#0A0A0A] ring-offset-2' : 'hover:opacity-70 opacity-50'
                 }`}
               >
-                <Image src={img} alt={`${productName} view ${idx + 1}`} fill className="object-cover" />
+                <Image src={img} alt={`${product.name} ${idx + 1}`} fill className="object-cover" />
               </button>
             ))}
           </div>
 
           {/* Main Image */}
-          <div className="flex-1 relative bg-secondary overflow-hidden">
-            <Image src={mainImg} alt={productName} fill className="object-cover" />
+          <div className="flex-1 relative">
+            <div
+              ref={mainImgRef}
+              className={`relative bg-[#F5F5F5] overflow-hidden cursor-zoom-in ${isZoomed ? 'cursor-zoom-out' : ''}`}
+              style={{ aspectRatio: '3/4' }}
+              onMouseEnter={() => setIsZoomed(true)}
+              onMouseLeave={() => setIsZoomed(false)}
+              onMouseMove={handleMouseMove}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              <Image
+                src={product.images[mainImgIndex]}
+                alt={product.name}
+                fill
+                className={`object-cover transition-transform duration-300 ${isZoomed ? 'scale-150' : 'scale-100'}`}
+                style={isZoomed ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : {}}
+                priority
+              />
+              {/* Discount badge */}
+              <div className="absolute top-4 left-4 bg-[#0A0A0A] text-white text-[11px] font-bold tracking-widest px-3 py-1.5 z-10">
+                {discount}% OFF
+              </div>
+              {/* Zoom hint */}
+              {!isZoomed && (
+                <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-2 z-10">
+                  <ZoomIn className="w-4 h-4 text-[#0A0A0A]/60" />
+                </div>
+              )}
+              {/* Nav arrows */}
+              {product.images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImg}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/85 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all z-10 shadow-sm"
+                    aria-label="Previous"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-[#0A0A0A]" />
+                  </button>
+                  <button
+                    onClick={nextImg}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/85 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all z-10 shadow-sm"
+                    aria-label="Next"
+                  >
+                    <ChevronRight className="w-4 h-4 text-[#0A0A0A]" />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Mobile dot indicators */}
+            <div className="flex sm:hidden justify-center gap-1.5 mt-3">
+              {product.images.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setMainImgIndex(idx)}
+                  className={`transition-all duration-300 rounded-full ${idx === mainImgIndex ? 'w-5 h-1.5 bg-[#B8973E]' : 'w-1.5 h-1.5 bg-black/20'}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Right: Product Info Sticky */}
+        {/* ── Right: Product Info ── */}
         <div className="w-full lg:w-[45%]">
-          <div className="sticky top-32 max-w-md">
-            <h1 className="font-heading text-4xl md:text-5xl text-foreground mb-4">{productName}</h1>
-            <p className="font-sans font-medium text-lg text-foreground/80 mb-8">₹35,000</p>
-            
-            {/* Size Selector */}
-            <div className="mb-10">
-              <div className="flex justify-between items-center mb-4">
-                <span className="font-sans text-xs tracking-widest uppercase text-foreground/60 font-semibold">Select Size</span>
-                <button className="font-sans text-xs underline text-foreground/50 hover:text-foreground transition-colors">Size Guide</button>
-              </div>
-              <div className="flex gap-3">
-                {["XS", "S", "M", "L", "XL"].map(size => (
-                  <button 
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-14 h-14 flex items-center justify-center border text-xs font-semibold transition-colors ${selectedSize === size ? 'border-foreground bg-foreground text-background' : 'border-black/10 text-foreground/70 hover:border-black/30'}`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
+          <div className="lg:sticky lg:top-28 max-w-lg">
+            {/* Tag */}
+            <p className="text-[10px] tracking-[0.3em] uppercase text-[#B8973E] font-semibold mb-3">{product.tag}</p>
+
+            {/* Name */}
+            <h1 className="font-heading text-3xl md:text-4xl text-[#0A0A0A] mb-4 leading-tight">{product.name}</h1>
+
+            {/* Rating */}
+            <div className="mb-6">
+              <StarRating rating={product.rating} reviews={product.reviews} />
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-col gap-4 mb-16">
-              <button 
-                disabled={!selectedSize}
+            {/* Price */}
+            <div className="flex items-baseline gap-4 mb-8 pb-8 border-b border-black/6">
+              <span className="font-heading text-3xl text-[#0A0A0A] font-medium">₹{product.price.toLocaleString()}</span>
+              <span className="text-lg text-foreground/30 line-through">₹{product.originalPrice.toLocaleString()}</span>
+              <span className="text-sm font-bold text-[#B8973E] bg-[#F0E4C0] px-2.5 py-1">{discount}% OFF</span>
+            </div>
+
+            {/* Saree Details OR Size Selector */}
+            {product.isSaree ? (
+              <div className="mb-8 space-y-4">
+                <p className="text-[11px] tracking-[0.2em] uppercase text-foreground/50 font-semibold mb-4">Product Details</p>
+                {[
+                  { label: "Fabric", value: product.fabric },
+                  { label: "Saree Length", value: product.sareeLength || "6.3 meters" },
+                  { label: "Blouse Piece", value: product.blousePiece || "Unstitched Blouse Piece Included" },
+                  { label: "Occasion", value: product.occasion },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-start gap-3">
+                    <span className="text-[11px] tracking-wide uppercase text-foreground/35 font-semibold w-28 shrink-0 pt-0.5">{label}</span>
+                    <span className="text-sm text-foreground/75">{value}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mb-8">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-[11px] tracking-[0.2em] uppercase text-foreground/50 font-semibold">Select Size</span>
+                  <button className="text-[11px] text-foreground/40 underline hover:text-foreground transition-colors">Size Guide</button>
+                </div>
+                <div className="flex gap-2.5 flex-wrap">
+                  {(product.sizes || ["XS","S","M","L","XL"]).map(size => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`w-12 h-12 flex items-center justify-center text-xs font-semibold transition-all duration-200 border ${
+                        selectedSize === size
+                          ? 'border-[#0A0A0A] bg-[#0A0A0A] text-white'
+                          : 'border-black/12 text-foreground/60 hover:border-[#0A0A0A]/40'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Add to Bag + Wishlist */}
+            <div className="flex gap-3 mb-8">
+              <button
+                disabled={!product.isSaree && !selectedSize}
                 onClick={handleAddToBag}
-                className={`w-full py-5 text-xs tracking-widest uppercase font-bold flex items-center justify-center gap-2 transition-colors ${
-                  selectedSize 
-                    ? 'bg-foreground text-background hover:bg-primary' 
-                    : 'bg-foreground/20 text-foreground/50 cursor-not-allowed'
+                className={`flex-1 py-4 text-[11px] tracking-[0.2em] uppercase font-bold transition-all duration-300 ${
+                  (product.isSaree || selectedSize)
+                    ? 'bg-[#0A0A0A] text-white hover:bg-[#B8973E]'
+                    : 'bg-foreground/10 text-foreground/30 cursor-not-allowed'
                 }`}
               >
-                {selectedSize ? "Add to Bag" : "Select a Size"}
+                {product.isSaree ? "Add to Bag" : selectedSize ? "Add to Bag" : "Select a Size"}
               </button>
-              <button 
-                disabled={!selectedSize}
-                onClick={() => router.push('/checkout')}
-                className={`w-full py-5 text-xs tracking-widest uppercase font-bold border transition-colors ${
-                  selectedSize 
-                    ? 'bg-transparent border-foreground text-foreground hover:bg-secondary'
-                    : 'bg-transparent border-foreground/20 text-foreground/40 cursor-not-allowed'
+              <button
+                onClick={() => setIsWishlisted(!isWishlisted)}
+                className={`w-14 border flex items-center justify-center transition-all duration-200 ${
+                  isWishlisted ? 'border-[#B8973E] bg-[#F0E4C0]' : 'border-black/15 hover:border-black/30'
                 }`}
+                aria-label="Wishlist"
               >
-                Buy It Now
+                <Heart className={`w-5 h-5 ${isWishlisted ? 'text-[#B8973E] fill-[#B8973E]' : 'text-foreground/50'}`} />
               </button>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="grid grid-cols-3 gap-3 mb-8 pb-8 border-b border-black/6">
+              {[
+                { icon: <Truck className="w-4 h-4" />, text: "Free Shipping" },
+                { icon: <ShieldCheck className="w-4 h-4" />, text: "Secure Payment" },
+                { icon: <RefreshCw className="w-4 h-4" />, text: "Easy Exchange" },
+              ].map((b, i) => (
+                <div key={i} className="flex flex-col items-center text-center gap-1.5 text-foreground/40">
+                  {b.icon}
+                  <span className="text-[10px] tracking-wide">{b.text}</span>
+                </div>
+              ))}
             </div>
 
             {/* Accordions */}
-            <div className="border-t border-black/10">
-              <div className="border-b border-black/10 py-5">
-                <button 
-                  onClick={() => setActiveAccordion(activeAccordion === 'description' ? '' : 'description')}
-                  className="flex justify-between items-center w-full text-left font-sans text-xs tracking-widest uppercase text-foreground font-semibold"
-                >
-                  Description
-                  {activeAccordion === 'description' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
+            <div className="border-t border-black/6">
+              <div className="border-b border-black/6">
+                {accordion('description')}
                 {activeAccordion === 'description' && (
-                  <div className="pt-6 pb-2 text-sm text-foreground/70 leading-relaxed">
-                    Elegance redefined. This exquisite piece embodies the essence of luxury fashion, featuring meticulous craftsmanship and premium materials. Designed to make a statement while ensuring effortless comfort for any occasion.
-                  </div>
+                  <div className="pb-5 text-sm text-foreground/60 leading-relaxed">{product.description}</div>
                 )}
               </div>
-              
-              <div className="border-b border-black/10 py-5">
-                <button 
-                  onClick={() => setActiveAccordion(activeAccordion === 'details' ? '' : 'details')}
-                  className="flex justify-between items-center w-full text-left font-sans text-xs tracking-widest uppercase text-foreground font-semibold"
-                >
-                  Details & Care
-                  {activeAccordion === 'details' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
+              <div className="border-b border-black/6">
+                {accordion('details')}
                 {activeAccordion === 'details' && (
-                  <div className="pt-6 pb-2 text-sm text-foreground/70 leading-relaxed">
-                    <ul className="list-disc pl-4 space-y-3">
-                      <li>100% Premium Fabric</li>
-                      <li>Hand-embroidered detailing</li>
-                      <li>Dry clean only</li>
-                      <li>Made with love in India</li>
-                    </ul>
+                  <div className="pb-5 text-sm text-foreground/60 leading-relaxed space-y-3">
+                    <div className="flex gap-3">
+                      <span className="text-[11px] uppercase tracking-wide text-foreground/35 font-semibold w-28 shrink-0">Fabric</span>
+                      <span>{product.fabric}</span>
+                    </div>
+                    {product.isSaree && (
+                      <>
+                        <div className="flex gap-3">
+                          <span className="text-[11px] uppercase tracking-wide text-foreground/35 font-semibold w-28 shrink-0">Length</span>
+                          <span>{product.sareeLength}</span>
+                        </div>
+                        <div className="flex gap-3">
+                          <span className="text-[11px] uppercase tracking-wide text-foreground/35 font-semibold w-28 shrink-0">Blouse</span>
+                          <span>{product.blousePiece}</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex gap-3">
+                      <span className="text-[11px] uppercase tracking-wide text-foreground/35 font-semibold w-28 shrink-0">Care</span>
+                      <span>{product.careInstructions}</span>
+                    </div>
+                    <div className="flex gap-3">
+                      <span className="text-[11px] uppercase tracking-wide text-foreground/35 font-semibold w-28 shrink-0">Origin</span>
+                      <span>Handcrafted in India</span>
+                    </div>
                   </div>
                 )}
               </div>
-
-              <div className="border-b border-black/10 py-5">
-                <button 
-                  onClick={() => setActiveAccordion(activeAccordion === 'shipping' ? '' : 'shipping')}
-                  className="flex justify-between items-center w-full text-left font-sans text-xs tracking-widest uppercase text-foreground font-semibold"
-                >
-                  Shipping & Returns
-                  {activeAccordion === 'shipping' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
+              <div className="border-b border-black/6">
+                {accordion('shipping')}
                 {activeAccordion === 'shipping' && (
-                  <div className="pt-6 pb-2 text-sm text-foreground/70 leading-relaxed">
-                    Enjoy complimentary express shipping on all orders. Returns are accepted within 14 days of delivery, provided the item is unworn, unwashed, and all original tags remain attached.
+                  <div className="pb-5 text-sm text-foreground/60 leading-relaxed">
+                    <p className="mb-3">Free express delivery on all orders across India. Delivered in 5–7 business days.</p>
+                    <p>Exchanges accepted within 24 hours for damaged or incorrect items only. View our full <Link href="/returns" className="text-[#B8973E] underline hover:text-[#0A0A0A]">Returns Policy</Link>.</p>
                   </div>
                 )}
               </div>
             </div>
           </div>
         </div>
-
       </div>
 
-      {/* Toast Notification */}
-      <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background px-8 py-4 flex items-center gap-3 shadow-2xl transition-all duration-500 z-50 ${showToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
-        <div className="w-2 h-2 bg-[#FAF7F4] rounded-full animate-pulse" />
-        <span className="font-sans text-xs font-bold tracking-widest uppercase">Added to Bag</span>
+      {/* Toast */}
+      <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#0A0A0A] text-white px-8 py-4 flex items-center gap-3 shadow-2xl transition-all duration-500 z-50 ${showToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+        <div className="w-2 h-2 bg-[#D4AF6A] rounded-full animate-pulse" />
+        <span className="font-sans text-xs font-bold tracking-[0.2em] uppercase">Added to Bag</span>
       </div>
     </main>
   );

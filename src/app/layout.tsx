@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   title: "Orchid Designs | Luxury Fashion",
   description: "Ultra Luxury Fashion Website inspired by top fashion houses.",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo-new.png",
+    apple: "/logo-new.png",
   },
 };
 
