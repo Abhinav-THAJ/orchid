@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Heart, Star, Truck, ShieldCheck, RefreshCw, ZoomIn } from "lucide-react";
 import { useCart } from "@/components/CartContext";
@@ -95,6 +95,7 @@ function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
 export default function ProductDetailPage() {
   const params = useParams();
   const slug = (params?.slug as string) || "";
+  const router = useRouter();
   const { addItem } = useCart();
 
   const product = PRODUCT_DB[slug] || {
@@ -140,6 +141,18 @@ export default function ProductDetailPage() {
     });
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleBuyNow = () => {
+    if (!product.isSaree && !selectedSize) return;
+    addItem({
+      slug,
+      name: product.name,
+      price: product.price,
+      size: product.isSaree ? "Free Size" : selectedSize,
+      image: product.images[0],
+    });
+    router.push('/checkout');
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -333,27 +346,40 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Add to Bag + Wishlist */}
-            <div className="flex gap-3 mb-8">
+            {/* Add to Bag + Buy Now + Wishlist */}
+            <div className="flex flex-col gap-3 mb-8">
+              <div className="flex gap-3">
+                <button
+                  disabled={!product.isSaree && !selectedSize}
+                  onClick={handleAddToBag}
+                  className={`flex-1 py-4 text-[11px] tracking-[0.2em] uppercase font-bold border transition-all duration-300 ${
+                    (product.isSaree || selectedSize)
+                      ? 'border-[#0A0A0A] text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white'
+                      : 'border-black/10 text-foreground/30 cursor-not-allowed bg-transparent'
+                  }`}
+                >
+                  {product.isSaree ? "Add to Bag" : selectedSize ? "Add to Bag" : "Select a Size"}
+                </button>
+                <button
+                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  className={`w-14 shrink-0 border flex items-center justify-center transition-all duration-200 ${
+                    isWishlisted ? 'border-[#B8973E] bg-[#F0E4C0]' : 'border-black/15 hover:border-black/30'
+                  }`}
+                  aria-label="Wishlist"
+                >
+                  <Heart className={`w-5 h-5 ${isWishlisted ? 'text-[#B8973E] fill-[#B8973E]' : 'text-foreground/50'}`} />
+                </button>
+              </div>
               <button
                 disabled={!product.isSaree && !selectedSize}
-                onClick={handleAddToBag}
-                className={`flex-1 py-4 text-[11px] tracking-[0.2em] uppercase font-bold transition-all duration-300 ${
+                onClick={handleBuyNow}
+                className={`w-full py-4 text-[11px] tracking-[0.2em] uppercase font-bold transition-all duration-300 ${
                   (product.isSaree || selectedSize)
-                    ? 'bg-[#0A0A0A] text-white hover:bg-[#B8973E]'
+                    ? 'bg-[#B8973E] text-white hover:bg-[#0A0A0A]'
                     : 'bg-foreground/10 text-foreground/30 cursor-not-allowed'
                 }`}
               >
-                {product.isSaree ? "Add to Bag" : selectedSize ? "Add to Bag" : "Select a Size"}
-              </button>
-              <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`w-14 border flex items-center justify-center transition-all duration-200 ${
-                  isWishlisted ? 'border-[#B8973E] bg-[#F0E4C0]' : 'border-black/15 hover:border-black/30'
-                }`}
-                aria-label="Wishlist"
-              >
-                <Heart className={`w-5 h-5 ${isWishlisted ? 'text-[#B8973E] fill-[#B8973E]' : 'text-foreground/50'}`} />
+                Buy It Now
               </button>
             </div>
 
