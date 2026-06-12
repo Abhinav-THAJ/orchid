@@ -118,7 +118,7 @@ export default function ProductDetailPage() {
       "/images/category_womens_kurta_sets_1780478021874.png",
     ],
     tag: "Luxury · Handcrafted",
-    sizes: isKids ? ["2 Years", "4 Years", "6 Years", "8 Years", "10 Years"] : ["XS", "S", "M", "L", "XL"],
+    sizes: isKids ? ["2-4 Yrs", "4-6 Yrs", "6-8 Yrs", "8-10 Yrs"] : ["XS", "S", "M", "L", "XL"],
   };
 
   const stockCount = 2; // For demonstration, showing low stock across all products
@@ -358,7 +358,7 @@ export default function ProductDetailPage() {
                   <button className="text-[11px] text-foreground/40 underline hover:text-foreground transition-colors">Size Guide</button>
                 </div>
                 <div className="flex gap-2.5 flex-wrap">
-                  {(product.sizes || (isKids ? ["2 Years", "4 Years", "6 Years", "8 Years", "10 Years"] : ["XS","S","M","L","XL"])).map(size => (
+                  {(product.sizes || (isKids ? ["2-4 Yrs", "4-6 Yrs", "6-8 Yrs", "8-10 Yrs"] : ["XS","S","M","L","XL"])).map(size => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
