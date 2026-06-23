@@ -389,7 +389,7 @@ export default function ProductsPage() {
                         <div>
                           <p className="text-[9px] tracking-widest text-[#B8973E] uppercase mb-1">{prod.tag}</p>
                           <h4 className="font-sans text-[12px] md:text-sm text-[#0A0A0A] mb-1.5 font-medium leading-snug">{prod.name}</h4>
-                          <StarRating rating={prod.rating} reviews={prod.reviews} />
+                          <StarRating rating={prod.rating || 5} reviews={prod.reviews || 0} />
                           <div className="flex items-baseline gap-2 mt-1.5">
                             <span className="text-sm font-semibold text-[#0A0A0A]">₹{prod.price.toLocaleString()}</span>
                             {originalPrice > prod.price && (
