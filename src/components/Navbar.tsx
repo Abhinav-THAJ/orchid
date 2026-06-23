@@ -40,21 +40,6 @@ const PRODUCT_CATEGORIES = {
   ]
 };
 
-const ALL_SEARCH_PRODUCTS = [
-  { name: "Regal Silk Saree", category: "Sarees", tag: "Silk", href: "/product/regal-silk-saree" },
-  { name: "Embroidered Kurti", category: "Kurtis", tag: "Cotton", href: "/product/embroidered-kurti" },
-  { name: "Royal Kurta Set", category: "Kurta Sets", tag: "Designer", href: "/product/royal-kurta-set" },
-  { name: "Chic Fusion Top", category: "Tops & T-Shirts", tag: "Modern", href: "/product/chic-fusion-top" },
-  { name: "Luxury Baby Ensemble", category: "Baby Wear", tag: "Soft Fabric", href: "/product/luxury-baby-ensemble" },
-  { name: "Girls Festive Dress", category: "Girls Wear", tag: "Festive", href: "/product/girls-festive-dress" },
-  { name: "Party Wear Gown", category: "Party Wear", tag: "Party", href: "/product/party-wear-gown" },
-  { name: "Boys Ethnic Suit", category: "Ethnic Wear", tag: "Heritage", href: "/product/boys-ethnic-suit" },
-  { name: "Classic Kasavu Saree", category: "Sarees", tag: "Traditional", href: "/product/classic-kasavu-saree" },
-  { name: "Bridal Lehenga", category: "Wedding Collections", tag: "Bridal", href: "/product/bridal-lehenga" },
-  { name: "Contemporary Drape", category: "Premium Collections", tag: "Premium", href: "/product/contemporary-drape" },
-  { name: "Office Formal Kurti", category: "Office Wear", tag: "Office", href: "/product/office-formal-kurti" },
-];
-
 function levenshtein(a: string, b: string): number {
   const m = a.length, n = b.length;
   const dp: number[][] = Array.from({ length: m + 1 }, (_, i) => Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
@@ -63,18 +48,23 @@ function levenshtein(a: string, b: string): number {
   return dp[m][n];
 }
 
-function fuzzySearch(query: string) {
+function fuzzySearch(query: string, products: any[]) {
   if (!query.trim()) return [];
   const q = query.toLowerCase();
-  return ALL_SEARCH_PRODUCTS.filter(p => {
-    const name = p.name.toLowerCase();
-    const cat = p.category.toLowerCase();
-    const tag = p.tag.toLowerCase();
+  return products.filter(p => {
+    const name = (p.name || "").toLowerCase();
+    const cat = (p.category || "").toLowerCase();
+    const tag = (p.tag || "").toLowerCase();
     if (name.includes(q) || cat.includes(q) || tag.includes(q)) return true;
     // typo tolerance: check each word
     const words = name.split(' ');
-    return words.some(w => levenshtein(w, q) <= 2 && q.length > 2);
-  }).slice(0, 6);
+    return words.some((w: string) => levenshtein(w, q) <= 2 && q.length > 2);
+  }).slice(0, 6).map((p: any) => ({
+    name: p.name,
+    category: p.category,
+    tag: p.tag,
+    href: `/product/${p.name.toLowerCase().replace(/\s+/g, '-')}`
+  }));
 }
 
 export default function Navbar() {
@@ -83,7 +73,17 @@ export default function Navbar() {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<typeof ALL_SEARCH_PRODUCTS>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setAllProducts(data);
+      })
+      .catch(console.error);
+  }, []);
   const { totalItems } = useCart();
   const pathname = usePathname();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -108,8 +108,8 @@ export default function Navbar() {
   }, [isSearchOpen]);
 
   useEffect(() => {
-    setSearchResults(fuzzySearch(searchQuery));
-  }, [searchQuery]);
+    setSearchResults(fuzzySearch(searchQuery, allProducts));
+  }, [searchQuery, allProducts]);
 
   const isHome = pathname === "/";
 

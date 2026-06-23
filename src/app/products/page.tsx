@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
@@ -48,20 +48,7 @@ const PRICE_RANGES = [
   { label: "Above ₹5,000", min: 5000, max: 999999 },
 ];
 
-const ALL_PRODUCTS = [
-  { name: "Regal Silk Saree", price: 4999, originalPrice: 9999, img: "/images/category_womens_sarees_1780477985126.png", tag: "Silk", category: "sarees", occasion: "Wedding", color: "Red", rating: 4.8, reviews: 124, isNew: false, isBest: true, stockCount: 2 },
-  { name: "Embroidered Kurti", price: 1499, originalPrice: 2999, img: "/images/category_womens_kurtis_1780478001731.png", tag: "Cotton", category: "kurtis", occasion: "Casual", color: "Blue", rating: 4.6, reviews: 89, isNew: true, isBest: true, stockCount: 5 },
-  { name: "Royal Kurta Set", price: 2499, originalPrice: 4999, img: "/images/category_womens_kurta_sets_1780478021874.png", tag: "Designer", category: "kurta-sets", occasion: "Festival", color: "Green", rating: 4.9, reviews: 203, isNew: false, isBest: true, stockCount: 1 },
-  { name: "Chic Fusion Top", price: 999, originalPrice: 1999, img: "/images/category_womens_tops_1780478037830.png", tag: "Poly Blend", category: "tops", occasion: "Casual", color: "White", rating: 4.5, reviews: 67, isNew: true, isBest: false, stockCount: 4 },
-  { name: "Luxury Baby Ensemble", price: 1299, originalPrice: 2499, img: "/images/category_kids_baby_wear_1780478061079.png", tag: "Cotton", category: "baby-wear", occasion: "Daily Wear", color: "Pink", rating: 4.7, reviews: 45, isNew: true, isBest: false, stockCount: 3 },
-  { name: "Girls Festive Dress", price: 1799, originalPrice: 3499, img: "/images/category_kids_girls_wear_1780478079175.png", tag: "Chiffon", category: "girls-wear", occasion: "Festival", color: "Yellow", rating: 4.8, reviews: 32, isNew: true, isBest: false, stockCount: 2 },
-  { name: "Party Wear Gown", price: 2299, originalPrice: 4499, img: "/images/category_kids_party_wear_1780478097124.png", tag: "Georgette", category: "party-wear", occasion: "Party", color: "Black", rating: 4.6, reviews: 28, isNew: false, isBest: false, stockCount: 6 },
-  { name: "Boys Ethnic Suit", price: 1999, originalPrice: 3999, img: "/images/category_kids_ethnic_wear_1780478114692.png", tag: "Silk", category: "ethnic-wear", occasion: "Wedding", color: "Blue", rating: 4.7, reviews: 51, isNew: false, isBest: true, stockCount: 1 },
-  { name: "Classic Kasavu Saree", price: 3499, originalPrice: 6999, img: "/images/collection_traditional_1780477879187.png", tag: "Cotton", category: "sarees", occasion: "Festival", color: "White", rating: 4.9, reviews: 178, isNew: false, isBest: true, stockCount: 3 },
-  { name: "Bridal Lehenga", price: 8499, originalPrice: 16999, img: "/images/collection_wedding_1780477845042.png", tag: "Silk", category: "wedding", occasion: "Wedding", color: "Red", rating: 5.0, reviews: 64, isNew: false, isBest: true, stockCount: 2 },
-  { name: "Contemporary Drape", price: 3999, originalPrice: 7999, img: "/images/collection_premium_1780477860938.png", tag: "Georgette", category: "premium", occasion: "Party", color: "Black", rating: 4.7, reviews: 93, isNew: true, isBest: false, stockCount: 4 },
-  { name: "Office Formal Kurti", price: 1299, originalPrice: 2599, img: "/images/lookbook_1_1780477942278.png", tag: "Linen", category: "office-wear", occasion: "Office", color: "White", rating: 4.6, reviews: 41, isNew: true, isBest: false, stockCount: 2 },
-];
+const ALL_PRODUCTS: any[] = []; // Removed dummy products
 
 function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
   return (
@@ -202,6 +189,21 @@ function FilterSidebar({ filters, setFilters }: { filters: Filters; setFilters: 
 }
 
 export default function ProductsPage() {
+  const [wcProducts, setWcProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setWcProducts(data);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }, []);
+
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     categories: [],
@@ -216,7 +218,7 @@ export default function ProductsPage() {
   const [wishlist, setWishlist] = useState<string[]>([]);
 
   const filteredProducts = useMemo(() => {
-    let products = [...ALL_PRODUCTS];
+    let products = [...wcProducts];
     if (filters.categories.length > 0) products = products.filter(p => filters.categories.includes(p.category));
     if (filters.fabrics.length > 0) products = products.filter(p => filters.fabrics.includes(p.tag));
     if (filters.occasions.length > 0) products = products.filter(p => filters.occasions.includes(p.occasion));
@@ -229,7 +231,7 @@ export default function ProductsPage() {
     else if (sortBy === "rating") products.sort((a, b) => b.rating - a.rating);
     else if (sortBy === "newest") products.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
     return products;
-  }, [filters, sortBy]);
+  }, [filters, sortBy, wcProducts]);
 
   const activeFilterCount = filters.categories.length + filters.fabrics.length + filters.occasions.length + filters.colors.length +
     (filters.priceRange ? 1 : 0) + (filters.newArrivals ? 1 : 0) + (filters.bestSellers ? 1 : 0);

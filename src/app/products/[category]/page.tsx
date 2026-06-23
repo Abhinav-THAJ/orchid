@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,20 +38,7 @@ const CATEGORY_GROUPS = [
   }
 ];
 
-const ALL_PRODUCTS = [
-  { name: "Regal Silk Saree", price: "35,000", img: "/images/category_womens_sarees_1780477985126.png", tag: "Silk" },
-  { name: "Embroidered Kurti", price: "12,500", img: "/images/category_womens_kurtis_1780478001731.png", tag: "Cotton" },
-  { name: "Royal Kurta Set", price: "28,000", img: "/images/category_womens_kurta_sets_1780478021874.png", tag: "Designer" },
-  { name: "Chic Fusion Top", price: "8,900", img: "/images/category_womens_tops_1780478037830.png", tag: "Modern" },
-  { name: "Luxury Baby Ensemble", price: "6,500", img: "/images/category_kids_baby_wear_1780478061079.png", tag: "Soft Fabric" },
-  { name: "Girls Festive Dress", price: "9,000", img: "/images/category_kids_girls_wear_1780478079175.png", tag: "Festive" },
-  { name: "Party Wear Gown", price: "14,500", img: "/images/category_kids_party_wear_1780478097124.png", tag: "Party" },
-  { name: "Boys Ethnic Suit", price: "11,000", img: "/images/category_kids_ethnic_wear_1780478114692.png", tag: "Heritage" },
-  { name: "Classic Kasavu Saree", price: "18,000", img: "/images/collection_traditional_1780477879187.png", tag: "Traditional" },
-  { name: "Bridal Lehenga", price: "85,000", img: "/images/collection_wedding_1780477845042.png", tag: "Bridal" },
-  { name: "Contemporary Drape", price: "24,000", img: "/images/collection_premium_1780477860938.png", tag: "Premium" },
-  { name: "Lookbook Exclusives", price: "42,000", img: "/images/lookbook_1_1780477942278.png", tag: "Editorial" },
-];
+
 
 function AccordionGroup({ title, items, isOpenDefault = true }: { title: string, items: any[], isOpenDefault?: boolean }) {
   const [isOpen, setIsOpen] = useState(isOpenDefault);
@@ -94,36 +81,43 @@ export default function CategoryPage() {
   const params = useParams();
   const categoryStr = params.category as string || "";
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [wcProducts, setWcProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setWcProducts(data);
+        }
+      })
+      .catch(console.error);
+  }, []);
   
   const title = categoryStr 
     ? categoryStr.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') 
     : "Collection";
 
   // Filter products based on the URL category
-  const filtered = ALL_PRODUCTS.filter(p => {
+  const filtered = wcProducts.filter(p => {
     const searchStr = categoryStr.replace('-', ' ').toLowerCase();
     const searchImg = categoryStr.replace('-', '_').toLowerCase();
     return (
       p.name.toLowerCase().includes(searchStr) ||
       p.tag.toLowerCase().includes(searchStr) ||
       p.img.toLowerCase().includes(searchImg) ||
-      // Fallback aliases for better matching
-      (searchStr === 'sarees' && (p.name.includes('Saree') || p.name.includes('Drape'))) ||
-      (searchStr === 'kurtis' && p.name.includes('Kurti')) ||
-      (searchStr === 'kurta sets' && p.name.includes('Kurta Set')) ||
-      (searchStr === 'tops' && p.name.includes('Top')) ||
-      (searchStr === 'wedding' && (p.tag === 'Bridal' || p.name.includes('Saree'))) ||
-      (searchStr.includes('kids') && p.img.includes('kids')) ||
-      (searchStr.includes('baby') && p.img.includes('baby')) ||
-      (searchStr.includes('girls') && p.img.includes('girls'))
+      (searchStr === 'sarees' && (p.name.toLowerCase().includes('saree') || p.name.toLowerCase().includes('drape'))) ||
+      (searchStr === 'kurtis' && p.name.toLowerCase().includes('kurti')) ||
+      (searchStr === 'kurta sets' && p.name.toLowerCase().includes('kurta set')) ||
+      (searchStr === 'tops' && p.name.toLowerCase().includes('top')) ||
+      (searchStr === 'wedding' && (p.tag === 'Bridal' || p.name.toLowerCase().includes('saree'))) ||
+      (searchStr.includes('kids') && p.img.toLowerCase().includes('kids')) ||
+      (searchStr.includes('baby') && p.img.toLowerCase().includes('baby')) ||
+      (searchStr.includes('girls') && p.img.toLowerCase().includes('girls'))
     );
   });
 
-  // If no products match, fallback to some items so the page isn't empty
-  const baseProducts = filtered.length > 0 ? filtered : ALL_PRODUCTS.slice(0, 4);
-  
-  // Duplicate products to simulate a full store catalog grid (e.g. 8 items)
-  const displayProducts = [...baseProducts, ...baseProducts, ...baseProducts, ...baseProducts].slice(0, 8);
+  const displayProducts = filtered;
 
   return (
     <main className="min-h-screen bg-background">
@@ -177,25 +171,29 @@ export default function CategoryPage() {
               <span className="text-xs tracking-widest uppercase text-foreground/50">{displayProducts.length} Results</span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
-              {displayProducts.map((prod, i) => (
-                <Link href={`/product/${prod.name.toLowerCase().replace(/\s+/g, '-')}`} key={i} className="group cursor-pointer block">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-3 md:mb-4">
-                    <Image src={prod.img} alt={prod.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
-                      <button className="w-full bg-white/90 backdrop-blur-sm text-black py-2 md:py-3 text-[10px] md:text-xs tracking-widest uppercase font-medium hover:bg-primary hover:text-white transition-colors shadow-lg">Add to Bag</button>
+            {displayProducts.length === 0 ? (
+              <div className="py-20 text-center text-foreground/50">No products found in this category.</div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+                {displayProducts.map((prod, i) => (
+                  <Link href={`/product/${prod.name.toLowerCase().replace(/\s+/g, '-')}`} key={i} className="group cursor-pointer block">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-3 md:mb-4">
+                      <Image src={prod.img} alt={prod.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
+                      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
+                        <button className="w-full bg-white/90 backdrop-blur-sm text-black py-2 md:py-3 text-[10px] md:text-xs tracking-widest uppercase font-medium hover:bg-primary hover:text-white transition-colors shadow-lg">Add to Bag</button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex justify-between items-start gap-1">
-                    <div className="min-w-0">
-                      <h4 className="font-sans text-[11px] md:text-sm tracking-wide text-foreground uppercase mb-1 truncate">{prod.name}</h4>
-                      <p className="font-sans text-foreground/50 text-[10px] md:text-xs">{prod.tag}</p>
+                    <div className="flex justify-between items-start gap-1">
+                      <div className="min-w-0">
+                        <h4 className="font-sans text-[11px] md:text-sm tracking-wide text-foreground uppercase mb-1 truncate">{prod.name}</h4>
+                        <p className="font-sans text-foreground/50 text-[10px] md:text-xs">{prod.tag}</p>
+                      </div>
+                      <p className="font-sans text-foreground/80 text-xs md:text-sm font-medium shrink-0">₹{prod.price}</p>
                     </div>
-                    <p className="font-sans text-foreground/80 text-xs md:text-sm font-medium shrink-0">₹{prod.price}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

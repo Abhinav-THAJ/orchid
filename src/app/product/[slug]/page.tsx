@@ -8,75 +8,7 @@ import Navbar from "@/components/Navbar";
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Heart, Star, Truck, ShieldCheck, RefreshCw, ZoomIn } from "lucide-react";
 import { useCart } from "@/components/CartContext";
 
-const PRODUCT_DB: Record<string, {
-  name: string;
-  price: number;
-  originalPrice: number;
-  rating: number;
-  reviews: number;
-  isSaree: boolean;
-  fabric: string;
-  sareeLength?: string;
-  blousePiece?: string;
-  occasion: string;
-  careInstructions: string;
-  description: string;
-  images: string[];
-  tag: string;
-  sizes?: string[];
-}> = {
-  "regal-silk-saree": {
-    name: "Regal Silk Saree",
-    price: 4999, originalPrice: 9999,
-    rating: 4.8, reviews: 124,
-    isSaree: true,
-    fabric: "Pure Banarasi Silk",
-    sareeLength: "6.3 meters",
-    blousePiece: "Unstitched Blouse Piece Included",
-    occasion: "Wedding · Festive · Reception",
-    careInstructions: "Dry Clean Only. Store in cotton muslin bag away from direct sunlight. Do not wring or twist.",
-    description: "A masterpiece of Indian craftsmanship, this Regal Silk Saree is woven with 100% pure Banarasi silk and features intricate zari embroidery. Each saree takes skilled weavers weeks to complete, resulting in a piece that is truly one-of-a-kind.",
-    images: [
-      "/images/category_womens_sarees_1780477985126.png",
-      "/images/lookbook_1_1780477942278.png",
-      "/images/collection_traditional_1780477879187.png",
-      "/images/brand_story_1780477925012.png",
-    ],
-    tag: "Pure Silk · Bestseller",
-  },
-  "embroidered-kurti": {
-    name: "Embroidered Kurti",
-    price: 1499, originalPrice: 2999,
-    rating: 4.6, reviews: 89,
-    isSaree: false,
-    fabric: "Premium Cotton",
-    occasion: "Casual · Daily Wear · Office",
-    careInstructions: "Machine washable in cold water. Iron on medium heat. Do not bleach.",
-    description: "Beautifully crafted with fine thread embroidery, this kurti combines comfort with elegance. Perfect for everyday wear and casual occasions.",
-    images: [
-      "/images/category_womens_kurtis_1780478001731.png",
-      "/images/category_womens_tops_1780478037830.png",
-    ],
-    tag: "Cotton · New Arrival",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-  },
-  "royal-kurta-set": {
-    name: "Royal Kurta Set",
-    price: 2499, originalPrice: 4999,
-    rating: 4.9, reviews: 203,
-    isSaree: false,
-    fabric: "Chanderi Silk",
-    occasion: "Festive · Wedding · Party",
-    careInstructions: "Dry clean preferred. Hand wash in cold water if needed. Do not tumble dry.",
-    description: "An exquisite three-piece kurta set crafted from premium Chanderi fabric. Features delicate hand-block printing and comes with matching dupatta and palazzo pants.",
-    images: [
-      "/images/category_womens_kurta_sets_1780478021874.png",
-      "/images/collection_premium_1780477860938.png",
-    ],
-    tag: "Chanderi · Premium",
-    sizes: ["XS", "S", "M", "L", "XL"],
-  },
-};
+
 
 function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
   return (
@@ -100,26 +32,37 @@ export default function ProductDetailPage() {
 
   const isKids = slug.includes("baby") || slug.includes("girls") || slug.includes("boys") || slug.includes("kids");
 
-  const product = PRODUCT_DB[slug] || {
-    name: slug.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    price: 4999, originalPrice: 9999,
-    rating: 4.8, reviews: 124,
-    isSaree: slug.includes("saree"),
-    fabric: "Premium Fabric",
-    sareeLength: "6.3 meters",
-    blousePiece: "Unstitched Blouse Piece Included",
-    occasion: "Festive · Wedding",
-    careInstructions: "Dry Clean Only. Handle with care.",
-    description: "Elegance redefined. This exquisite piece embodies the essence of luxury fashion, featuring meticulous craftsmanship and premium materials.",
-    images: [
-      "/images/lookbook_1_1780477942278.png",
-      "/images/category_womens_sarees_1780477985126.png",
-      "/images/category_womens_kurtis_1780478001731.png",
-      "/images/category_womens_kurta_sets_1780478021874.png",
-    ],
-    tag: "Luxury · Handcrafted",
-    sizes: isKids ? ["2-4 Yrs", "4-6 Yrs", "6-8 Yrs", "8-10 Yrs"] : ["XS", "S", "M", "L", "XL"],
-  };
+  const [product, setProduct] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const found = data.find((p: any) => p.name.toLowerCase().replace(/\s+/g, '-') === slug);
+          if (found) {
+            setProduct({
+              name: found.name,
+              price: found.price,
+              originalPrice: found.originalPrice || found.price,
+              rating: found.rating || 5,
+              reviews: found.reviews || 0,
+              isSaree: found.name.toLowerCase().includes('saree'),
+              fabric: "Premium Fabric",
+              occasion: found.occasion || "Casual",
+              careInstructions: "Handle with care.",
+              description: found.description || "Description for " + found.name,
+              images: found.images && found.images.length > 0 ? found.images : [found.img],
+              tag: found.tag || "Premium",
+              sizes: isKids ? ["2-4 Yrs", "4-6 Yrs", "6-8 Yrs", "8-10 Yrs"] : ["XS", "S", "M", "L", "XL"]
+            });
+          }
+        }
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }, [slug, isKids]);
 
   const stockCount = 2; // For demonstration, showing low stock across all products
 
@@ -151,6 +94,26 @@ export default function ProductDetailPage() {
     setReviewComment("");
     setReviewRating(5);
   };
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-[#FAFAFA]">
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center">Loading product...</div>
+      </main>
+    );
+  }
+
+  if (!product) {
+    return (
+      <main className="min-h-screen bg-[#FAFAFA]">
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center">Product not found.</div>
+      </main>
+    );
+  }
+
+
 
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 

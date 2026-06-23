@@ -22,20 +22,6 @@ function InstagramIcon({ className = "w-5 h-5" }: { className?: string }) {
 
 gsap.registerPlugin(ScrollTrigger);
 
-const BEST_SELLERS = [
-  { img: "/images/category_womens_sarees_1780477985126.png", name: "Regal Silk Saree", price: "₹4,999", originalPrice: "₹9,999", discount: "50% OFF", rating: 4.8, reviews: 124, tag: "Silk · Bestseller", href: "/product/regal-silk-saree", stockCount: 2 },
-  { img: "/images/category_womens_kurtis_1780478001731.png", name: "Embroidered Kurti", price: "₹1,499", originalPrice: "₹2,999", discount: "50% OFF", rating: 4.6, reviews: 89, tag: "Cotton · Top Rated", href: "/product/embroidered-kurti", stockCount: 5 },
-  { img: "/images/category_womens_kurta_sets_1780478021874.png", name: "Royal Kurta Set", price: "₹2,499", originalPrice: "₹4,999", discount: "50% OFF", rating: 4.9, reviews: 203, tag: "Designer · Premium", href: "/product/royal-kurta-set", stockCount: 1 },
-  { img: "/images/category_womens_tops_1780478037830.png", name: "Chic Fusion Top", price: "₹999", originalPrice: "₹1,999", discount: "50% OFF", rating: 4.5, reviews: 67, tag: "Modern · Casual", href: "/product/chic-fusion-top", stockCount: 4 },
-];
-
-const NEW_ARRIVALS = [
-  { img: "/images/category_kids_baby_wear_1780478061079.png", name: "Luxury Baby Ensemble", price: "₹1,299", originalPrice: "₹2,499", discount: "48% OFF", rating: 4.7, reviews: 45, tag: "Soft Fabric", href: "/product/luxury-baby-ensemble", stockCount: 3 },
-  { img: "/images/category_kids_girls_wear_1780478079175.png", name: "Girls Festive Dress", price: "₹1,799", originalPrice: "₹3,499", discount: "49% OFF", rating: 4.8, reviews: 32, tag: "Festive", href: "/product/girls-festive-dress", stockCount: 2 },
-  { img: "/images/category_kids_party_wear_1780478097124.png", name: "Party Wear Gown", price: "₹2,299", originalPrice: "₹4,499", discount: "49% OFF", rating: 4.6, reviews: 28, tag: "Party", href: "/product/party-wear-gown", stockCount: 6 },
-  { img: "/images/category_kids_ethnic_wear_1780478114692.png", name: "Boys Ethnic Suit", price: "₹1,999", originalPrice: "₹3,999", discount: "50% OFF", rating: 4.7, reviews: 51, tag: "Heritage", href: "/product/boys-ethnic-suit", stockCount: 1 },
-];
-
 const INSTAGRAM_POSTS = [
   "/images/category_womens_sarees_1780477985126.png",
   "/images/collection_wedding_1780477845042.png",
@@ -148,7 +134,7 @@ function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
   );
 }
 
-function ProductCard({ prod }: { prod: typeof BEST_SELLERS[0] }) {
+function ProductCard({ prod }: { prod: any }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   return (
@@ -163,9 +149,11 @@ function ProductCard({ prod }: { prod: typeof BEST_SELLERS[0] }) {
             loading="lazy"
           />
           {/* Discount badge */}
-          <div className="absolute top-3 left-3 bg-[#0A0A0A] text-white text-[10px] font-bold tracking-wider px-2.5 py-1">
-            {prod.discount}
-          </div>
+          {prod.originalPrice > prod.price && (
+            <div className="absolute top-3 left-3 bg-[#0A0A0A] text-white text-[10px] font-bold tracking-wider px-2.5 py-1">
+              {Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100)}% OFF
+            </div>
+          )}
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-500" />
           {/* Quick view button */}
@@ -181,8 +169,10 @@ function ProductCard({ prod }: { prod: typeof BEST_SELLERS[0] }) {
           <h4 className="font-sans text-sm text-[#0A0A0A] mb-1.5 font-medium">{prod.name}</h4>
           <StarRating rating={prod.rating} reviews={prod.reviews} />
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-sm font-semibold text-[#0A0A0A]">{prod.price}</span>
-            <span className="text-xs text-foreground/35 line-through">{prod.originalPrice}</span>
+            <span className="text-sm font-semibold text-[#0A0A0A]">₹{prod.price?.toLocaleString()}</span>
+            {prod.originalPrice > prod.price && (
+              <span className="text-xs text-foreground/35 line-through">₹{prod.originalPrice?.toLocaleString()}</span>
+            )}
           </div>
           {prod.stockCount && prod.stockCount < 5 && (
             <p className="text-[11px] text-[#D84545] mt-1.5 font-medium tracking-wide">
@@ -211,6 +201,21 @@ export default function Home() {
   const heroTextRef = useRef<HTMLDivElement>(null);
   const storyRef = useRef<HTMLDivElement>(null);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+  const [wcProducts, setWcProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setWcProducts(data);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const bestSellers = wcProducts.slice(0, 4);
+  const newArrivals = wcProducts.slice(4, 8);
 
   const banners = [
     {
@@ -357,9 +362,9 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-          {BEST_SELLERS.map((prod, i) => (
+          {bestSellers.length > 0 ? bestSellers.map((prod, i) => (
             <ProductCard key={i} prod={prod} />
-          ))}
+          )) : <p className="col-span-full text-center py-10 text-foreground/50">No products available.</p>}
         </div>
         <div className="mt-8 flex md:hidden justify-center">
           <Link href="/products" className="text-[11px] tracking-[0.2em] uppercase border border-[#0A0A0A]/20 px-8 py-3 text-[#0A0A0A]/60 hover:border-[#0A0A0A] hover:text-[#0A0A0A] transition-all">
@@ -404,9 +409,9 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-          {NEW_ARRIVALS.map((prod, i) => (
+          {newArrivals.length > 0 ? newArrivals.map((prod, i) => (
             <ProductCard key={i} prod={prod} />
-          ))}
+          )) : <p className="col-span-full text-center py-10 text-foreground/50">No products available.</p>}
         </div>
       </section>
 
