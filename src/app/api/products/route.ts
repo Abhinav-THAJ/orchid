@@ -10,13 +10,14 @@ export async function GET() {
     }
 
     // Map WooCommerce products to match the shape expected by the frontend
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mappedProducts = wcProducts.map((p: any) => ({
       id: p.id,
       name: p.name,
       price: parseFloat(p.price) || 0,
       originalPrice: parseFloat(p.regular_price) || parseFloat(p.price) || 0,
       img: p.images?.[0]?.src || "/images/category_womens_sarees_1780477985126.png", // fallback
-      images: p.images && p.images.length > 0 ? p.images.map((i: any) => i.src) : [],
+      images: p.images && p.images.length > 0 ? p.images.map((i: { src: string }) => i.src) : [],
       description: p.description?.replace(/<[^>]*>?/gm, '') || "", // stripped html
       tag: p.categories?.[0]?.name || "General",
       category: p.categories?.[0]?.slug || "general",

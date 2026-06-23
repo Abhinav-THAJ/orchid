@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useCart } from "@/components/CartContext";
 
 export default function CheckoutPage() {
-  const { items, totalAmount } = useCart();
+  const { items, totalPrice } = useCart();
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
@@ -71,7 +71,7 @@ export default function CheckoutPage() {
             <div className="bg-secondary p-8 sticky top-32">
               <h2 className="font-sans text-xs tracking-widest uppercase text-foreground/50 mb-6 font-bold">Order Summary</h2>
               
-              {items.map((item: any, idx: number) => (
+              {items.map((item: { name: string; size: string; price: number; quantity: number; image?: string }, idx: number) => (
                 <div key={idx} className="flex gap-4 mb-6 pb-6 border-b border-black/10">
                   <div className="relative w-20 aspect-[3/4] bg-white border border-black/5 shrink-0">
                     <Image src={item.image || "/logo-circle.png"} alt={item.name} fill className="object-cover" />
@@ -88,7 +88,7 @@ export default function CheckoutPage() {
               <div className="space-y-4 text-sm text-foreground/70 mb-6 pb-6 border-b border-black/10">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-medium text-foreground">₹{totalAmount.toLocaleString()}</span>
+                  <span className="font-medium text-foreground">₹{totalPrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
@@ -98,7 +98,7 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total</span>
-                <span>₹{totalAmount.toLocaleString()}</span>
+                <span>₹{totalPrice.toLocaleString()}</span>
               </div>
             </div>
           </div>

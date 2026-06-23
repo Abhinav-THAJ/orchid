@@ -32,14 +32,53 @@ export default function ProductDetailPage() {
 
   const isKids = slug.includes("baby") || slug.includes("girls") || slug.includes("boys") || slug.includes("kids");
 
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<{
+    name: string;
+    price: number;
+    originalPrice: number;
+    rating: number;
+    reviews: number;
+    isSaree: boolean;
+    fabric: string;
+    occasion: string;
+    careInstructions: string;
+    description: string;
+    images: string[];
+    tag: string;
+    sizes: string[];
+    sareeLength?: string;
+    blousePiece?: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Note: All useStates and useRefs must be called unconditionally before early returns!
+  const [mainImgIndex, setMainImgIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [activeAccordion, setActiveAccordion] = useState("description");
+  const [showToast, setShowToast] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const mainImgRef = useRef<HTMLDivElement>(null);
+
+  const [reviewsList, setReviewsList] = useState([
+    { name: "Ananya S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning piece! The quality and craftsmanship are beyond my expectations. Definitely buying again." },
+    { name: "Priya M.", rating: 4, date: "September 28, 2025", comment: "Beautiful design and comfortable fabric. Got many compliments at the wedding." },
+    { name: "Meera K.", rating: 5, date: "August 15, 2025", comment: "Loved the detailing. Very premium feel." }
+  ]);
+  const [reviewName, setReviewName] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const found = data.find((p: any) => p.name.toLowerCase().replace(/\s+/g, '-') === slug);
           if (found) {
             setProduct({
@@ -65,26 +104,6 @@ export default function ProductDetailPage() {
   }, [slug, isKids]);
 
   const stockCount = 2; // For demonstration, showing low stock across all products
-
-  const [mainImgIndex, setMainImgIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("");
-  const [activeAccordion, setActiveAccordion] = useState("description");
-  const [showToast, setShowToast] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
-  const mainImgRef = useRef<HTMLDivElement>(null);
-
-  // Reviews state
-  const [reviewsList, setReviewsList] = useState([
-    { name: "Ananya S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning piece! The quality and craftsmanship are beyond my expectations. Definitely buying again." },
-    { name: "Priya M.", rating: 4, date: "September 28, 2025", comment: "Beautiful design and comfortable fabric. Got many compliments at the wedding." },
-    { name: "Meera K.", rating: 5, date: "August 15, 2025", comment: "Loved the detailing. Very premium feel." }
-  ]);
-  const [reviewName, setReviewName] = useState("");
-  const [reviewComment, setReviewComment] = useState("");
-  const [reviewRating, setReviewRating] = useState(5);
-  const [hoverRating, setHoverRating] = useState(0);
 
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,7 +173,6 @@ export default function ProductDetailPage() {
   const nextImg = () => setMainImgIndex(i => (i + 1) % product.images.length);
 
   // Touch swipe support
-  const touchStartX = useRef<number | null>(null);
   const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
@@ -195,7 +213,7 @@ export default function ProductDetailPage() {
         <div className="w-full lg:w-[55%] flex flex-col-reverse sm:flex-row gap-4">
           {/* Thumbnails */}
           <div className="hidden sm:flex sm:flex-col gap-3 w-20 shrink-0">
-            {product.images.map((img, idx) => (
+            {product.images.map((img: string, idx: number) => (
               <button
                 key={idx}
                 onClick={() => setMainImgIndex(idx)}
@@ -261,7 +279,7 @@ export default function ProductDetailPage() {
 
             {/* Mobile dot indicators */}
             <div className="flex sm:hidden justify-center gap-1.5 mt-3">
-              {product.images.map((_, idx) => (
+              {product.images.map((_: string, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => setMainImgIndex(idx)}
@@ -321,7 +339,7 @@ export default function ProductDetailPage() {
                   <button className="text-[11px] text-foreground/40 underline hover:text-foreground transition-colors">Size Guide</button>
                 </div>
                 <div className="flex gap-2.5 flex-wrap">
-                  {(product.sizes || (isKids ? ["2-4 Yrs", "4-6 Yrs", "6-8 Yrs", "8-10 Yrs"] : ["XS","S","M","L","XL"])).map(size => (
+                  {(product.sizes || (isKids ? ["2-4 Yrs", "4-6 Yrs", "6-8 Yrs", "8-10 Yrs"] : ["XS","S","M","L","XL"])).map((size: string) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}

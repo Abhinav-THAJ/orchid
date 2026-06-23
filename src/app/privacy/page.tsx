@@ -15,7 +15,7 @@ export default function LegalPage() {
           </p>
           <h2 className="font-heading text-2xl mt-8 mb-4">Privacy Policy</h2>
           <p>
-            Your privacy is important to us. It is Orchid Designs' policy to respect your privacy regarding any information we may collect from you across our website.
+            Welcome to Orchid Designs&apos;s Privacy Policy. We are committed to protecting your personal information and your right to privacy.
           </p>
           <h2 className="font-heading text-2xl mt-8 mb-4">Terms of Service</h2>
           <p>

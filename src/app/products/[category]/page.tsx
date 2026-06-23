@@ -81,14 +81,20 @@ export default function CategoryPage() {
   const params = useParams();
   const categoryStr = params.category as string || "";
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [wcProducts, setWcProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Array<{
+    name: string;
+    price: number;
+    originalPrice?: number;
+    img?: string;
+    tag?: string;
+  }>>([]);
 
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setWcProducts(data);
+          setProducts(data);
         }
       })
       .catch(console.error);
@@ -99,21 +105,21 @@ export default function CategoryPage() {
     : "Collection";
 
   // Filter products based on the URL category
-  const filtered = wcProducts.filter(p => {
+  const filtered = products.filter(p => {
     const searchStr = categoryStr.replace('-', ' ').toLowerCase();
     const searchImg = categoryStr.replace('-', '_').toLowerCase();
     return (
-      p.name.toLowerCase().includes(searchStr) ||
-      p.tag.toLowerCase().includes(searchStr) ||
-      p.img.toLowerCase().includes(searchImg) ||
+      (p.name?.toLowerCase().includes(searchStr)) ||
+      (p.tag?.toLowerCase().includes(searchStr)) ||
+      (p.img?.toLowerCase().includes(searchImg)) ||
       (searchStr === 'sarees' && (p.name.toLowerCase().includes('saree') || p.name.toLowerCase().includes('drape'))) ||
       (searchStr === 'kurtis' && p.name.toLowerCase().includes('kurti')) ||
       (searchStr === 'kurta sets' && p.name.toLowerCase().includes('kurta set')) ||
       (searchStr === 'tops' && p.name.toLowerCase().includes('top')) ||
       (searchStr === 'wedding' && (p.tag === 'Bridal' || p.name.toLowerCase().includes('saree'))) ||
-      (searchStr.includes('kids') && p.img.toLowerCase().includes('kids')) ||
-      (searchStr.includes('baby') && p.img.toLowerCase().includes('baby')) ||
-      (searchStr.includes('girls') && p.img.toLowerCase().includes('girls'))
+      (searchStr.includes('kids') && p.img?.toLowerCase().includes('kids')) ||
+      (searchStr.includes('baby') && p.img?.toLowerCase().includes('baby')) ||
+      (searchStr.includes('girls') && p.img?.toLowerCase().includes('girls'))
     );
   });
 
@@ -178,7 +184,7 @@ export default function CategoryPage() {
                 {displayProducts.map((prod, i) => (
                   <Link href={`/product/${prod.name.toLowerCase().replace(/\s+/g, '-')}`} key={i} className="group cursor-pointer block">
                     <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-3 md:mb-4">
-                      <Image src={prod.img} alt={prod.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
+                      <Image src={prod.img || ""} alt={prod.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
                       <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
                         <button className="w-full bg-white/90 backdrop-blur-sm text-black py-2 md:py-3 text-[10px] md:text-xs tracking-widest uppercase font-medium hover:bg-primary hover:text-white transition-colors shadow-lg">Add to Bag</button>
                       </div>

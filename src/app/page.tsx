@@ -38,7 +38,7 @@ const TESTIMONIALS = [
     rating: 5,
   },
   {
-    quote: "The quality of the silk and the intricacy of the embroidery exceeded all my expectations. Every piece tells a story of heritage and luxury.",
+    quote: "The quality of the sarees is unmatched. I wore the 'Regal Silk Saree' for my wedding and it was perfect.",
     author: "Priya R., Mumbai",
     rating: 5,
   },
@@ -68,7 +68,7 @@ function TestimonialSlider() {
     <section className="py-24 md:py-32 px-6 bg-[#FAFAFA] relative overflow-hidden">
       {/* Decorative quotes background */}
       <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-[200px] md:text-[300px] leading-none font-heading text-[#0A0A0A]/[0.03] pointer-events-none select-none italic font-serif">
-        "
+        &quot;
       </div>
 
       <div className="max-w-5xl mx-auto text-center relative z-10">
@@ -90,7 +90,7 @@ function TestimonialSlider() {
                   ))}
                 </div>
                 <h2 className="font-heading text-2xl md:text-4xl lg:text-4xl text-[#0A0A0A] font-normal leading-relaxed md:leading-relaxed mb-8 md:mb-10 italic max-w-4xl mx-auto px-4">
-                  "{testimonial.quote}"
+                  &quot;{testimonial.quote}&quot;
                 </h2>
                 <p className="font-sans text-[10px] md:text-xs tracking-[0.2em] uppercase text-[#0A0A0A]/50 font-medium">
                   — {testimonial.author}
@@ -441,7 +441,7 @@ export default function Home() {
               modern elegance for the contemporary aesthetic.
             </p>
             <p className="text-[#0A0A0A]/55 text-base font-light leading-relaxed max-w-md">
-              Every piece is a work of art, meticulously handcrafted to bring out the royal
+              Everything you need to create your dream wardrobe. From &quot;everyday essentials&quot; to &quot;statement pieces&quot;. Handcrafted to bring out the royal
               essence in you. Experience fashion that speaks the language of luxury.
             </p>
             <Link

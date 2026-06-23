@@ -189,7 +189,23 @@ function FilterSidebar({ filters, setFilters }: { filters: Filters; setFilters: 
 }
 
 export default function ProductsPage() {
-  const [wcProducts, setWcProducts] = useState<any[]>([]);
+  const [ALL_PRODUCTS, setALL_PRODUCTS] = useState<Array<{
+    name: string;
+    price: number;
+    originalPrice?: number;
+    image?: string;
+    img?: string;
+    category?: string;
+    isSaree?: boolean;
+    fabric?: string;
+    occasion?: string;
+    color?: string;
+    tag?: string;
+    rating?: number;
+    reviews?: number;
+    stockCount?: number;
+    isNew?: boolean;
+  }>>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -197,7 +213,7 @@ export default function ProductsPage() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          setWcProducts(data);
+          setALL_PRODUCTS(data);
         }
       })
       .catch(console.error)
@@ -218,20 +234,16 @@ export default function ProductsPage() {
   const [wishlist, setWishlist] = useState<string[]>([]);
 
   const filteredProducts = useMemo(() => {
-    let products = [...wcProducts];
-    if (filters.categories.length > 0) products = products.filter(p => filters.categories.includes(p.category));
-    if (filters.fabrics.length > 0) products = products.filter(p => filters.fabrics.includes(p.tag));
-    if (filters.occasions.length > 0) products = products.filter(p => filters.occasions.includes(p.occasion));
-    if (filters.colors.length > 0) products = products.filter(p => filters.colors.includes(p.color));
+    let products = [...ALL_PRODUCTS];
+    if (filters.categories.length > 0) products = products.filter(p => filters.categories.includes(p.category || ""));
+    if (filters.fabrics.length > 0) products = products.filter(p => filters.fabrics.includes(p.fabric || ""));
+    if (filters.occasions.length > 0) products = products.filter(p => filters.occasions.includes(p.occasion || ""));
+    if (filters.colors.length > 0) products = products.filter(p => filters.colors.includes(p.color || ""));
     if (filters.priceRange) products = products.filter(p => p.price >= filters.priceRange!.min && p.price <= filters.priceRange!.max);
-    if (filters.newArrivals) products = products.filter(p => p.isNew);
-    if (filters.bestSellers) products = products.filter(p => p.isBest);
     if (sortBy === "price-asc") products.sort((a, b) => a.price - b.price);
-    else if (sortBy === "price-desc") products.sort((a, b) => b.price - a.price);
-    else if (sortBy === "rating") products.sort((a, b) => b.rating - a.rating);
-    else if (sortBy === "newest") products.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+    else if (sortBy === "price-desc") products.sort((a, b) => (b.price || 0) - (a.price || 0));
     return products;
-  }, [filters, sortBy, wcProducts]);
+  }, [filters, sortBy, ALL_PRODUCTS]);
 
   const activeFilterCount = filters.categories.length + filters.fabrics.length + filters.occasions.length + filters.colors.length +
     (filters.priceRange ? 1 : 0) + (filters.newArrivals ? 1 : 0) + (filters.bestSellers ? 1 : 0);
@@ -344,24 +356,26 @@ export default function ProductsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
                 {filteredProducts.map((prod, i) => {
                   const slug = prod.name.toLowerCase().replace(/\s+/g, '-');
-                  const discount = Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100);
+                  const originalPrice = prod.originalPrice || prod.price;
+                  const discount = Math.round(((originalPrice - prod.price) / originalPrice) * 100);
                   return (
                     <div key={i} className="group relative">
                       <Link href={`/product/${slug}`} className="block">
                         <div className="relative aspect-[3/4] overflow-hidden bg-[#F5F5F5] mb-3">
                           <Image
-                            src={prod.img}
+                            src={prod.img || ""}
                             alt={prod.name}
                             fill
                             className="object-cover transition-all duration-700 group-hover:scale-108"
                             loading="lazy"
                           />
-                          {/* Discount badge */}
-                          <div className="absolute top-2 left-2 bg-[#0A0A0A] text-white text-[9px] font-bold tracking-wider px-2 py-0.5">
-                            {discount}% OFF
-                          </div>
+                          {discount > 0 && (
+                            <div className="absolute top-2 left-2 bg-[#0A0A0A] text-white text-[9px] font-bold tracking-wider px-2 py-0.5">
+                              {discount}% OFF
+                            </div>
+                          )}
                           {prod.isNew && (
-                            <div className="absolute top-2 right-10 bg-[#B8973E] text-white text-[9px] font-bold tracking-wider px-2 py-0.5">
+                            <div className="absolute top-2 right-2 bg-[#B8973E] text-white text-[9px] font-bold tracking-wider px-2 py-0.5">
                               NEW
                             </div>
                           )}
@@ -378,7 +392,9 @@ export default function ProductsPage() {
                           <StarRating rating={prod.rating} reviews={prod.reviews} />
                           <div className="flex items-baseline gap-2 mt-1.5">
                             <span className="text-sm font-semibold text-[#0A0A0A]">₹{prod.price.toLocaleString()}</span>
-                            <span className="text-xs text-foreground/30 line-through">₹{prod.originalPrice.toLocaleString()}</span>
+                            {originalPrice > prod.price && (
+                              <span className="text-[10px] text-foreground/40 line-through">₹{originalPrice.toLocaleString()}</span>
+                            )}
                           </div>
                           {prod.stockCount && prod.stockCount < 5 && (
                             <p className="text-[11px] text-[#D84545] mt-1.5 font-medium tracking-wide">
